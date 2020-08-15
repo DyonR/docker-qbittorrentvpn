@@ -115,6 +115,7 @@ Please provide logs, docker version and other information that can simplify repr
 Using the latest stable verison of Docker is always recommended. Support for older version is on a best-effort basis.
 
 ### Credits:  
-This projects originates from MarkusMcNugen/docker-qBittorrentvpn, but forking was not possible since DyonR/jackettvpn uses the fork already.  
 [MarkusMcNugen/docker-qBittorrentvpn](https://github.com/MarkusMcNugen/docker-qBittorrentvpn)  
-[DyonR/jackettvpn](https://github.com/DyonR/jackettvpn)
+[DyonR/jackettvpn](https://github.com/DyonR/jackettvpn)  
+This projects originates from MarkusMcNugen/docker-qBittorrentvpn, but forking was not possible since DyonR/jackettvpn uses the fork already.
+
