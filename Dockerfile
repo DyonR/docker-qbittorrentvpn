@@ -11,6 +11,7 @@ RUN apt update \
     && apt -y upgrade \
     && apt -y install --no-install-recommends \
     curl \
+    jq \
     build-essential \
     ca-certificates \
     pkg-config \
@@ -28,22 +29,24 @@ RUN apt update \
     qtbase5-dev \
     qttools5-dev \
     libqt5svg5-dev \
-    && QBITTORRENT_RELEASE=$(curl -sX GET "https://api.github.com/repos/qBittorrent/qBittorrent/tags" | awk '/name/{print $4;exit}' FS='[""]') \
-    && LIBTORRENT_RELEASE=$(curl -sX GET "https://api.github.com/repos/arvidn/libtorrent/releases" | awk '/tag_name/{print $4;exit}' FS='[""]') \
-    && curl -o /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz -L https://api.github.com/repos/qbittorrent/qBittorrent/tarball/${QBITTORRENT_RELEASE} \
-    && curl -o /opt/libtorrent-${LIBTORRENT_RELEASE}.tar.gz -L https://api.github.com/repos/arvidn/libtorrent/tarball/${LIBTORRENT_RELEASE} \
+    && QBITTORRENT_RELEASE=$(curl -sX GET "https://api.github.com/repos/qBittorrent/qBittorrent/tags" | jq '.[0] .name' | tr -d '"') \
+    && LIBTORRENT_ASSETS=$(curl -sX GET "https://api.github.com/repos/arvidn/libtorrent/releases" | jq '.[0] .assets_url' | tr -d '"') \
+    && LIBTORRENT_DOWNLOAD_URL=$(curl -sX GET ${LIBTORRENT_ASSETS} | jq '.[0] .browser_download_url' | tr -d '"') \
+    && LIBTORRENT_NAME=$(curl -sX GET ${LIBTORRENT_ASSETS} | jq '.[0] .name' | tr -d '"') \
+    && curl -o /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz -L https://github.com/qbittorrent/qBittorrent/archive/${QBITTORRENT_RELEASE}.tar.gz \
+    && curl -o /opt/${LIBTORRENT_NAME} -L ${LIBTORRENT_DOWNLOAD_URL} \
     && tar -xvzf /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz \
-    && tar -xvzf /opt/libtorrent-${LIBTORRENT_RELEASE}.tar.gz \
+    && tar -xvzf /opt/${LIBTORRENT_NAME} \
     && rm /opt/*.tar.gz \
-    && cd /opt/arvidn-libtorrent-* \
-    && ./autotool.sh \
+    && cd /opt/libtorrent-rasterbar* \
     && ./configure --disable-debug --enable-encryption && make clean && make -j$(nproc) && make install \
-    && cd /opt/qbittorrent-* \
+    && cd /opt/qBittorrent-${QBITTORRENT_RELEASE} \
     && ./configure --disable-gui && make -j$(nproc) && make install \
     && cd /opt \
     && rm -rf /opt/* \
     && apt -y purge \
     curl \
+    jq \
     build-essential \
     ca-certificates \
     pkg-config \
