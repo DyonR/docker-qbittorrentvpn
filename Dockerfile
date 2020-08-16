@@ -37,7 +37,7 @@ RUN apt update \
     && rm /opt/*.tar.gz \
     && cd /opt/libtorrent-rasterbar* \
     && ./configure --disable-debug --enable-encryption && make clean && make -j$(nproc) && make install \
-    && git clone https://github.com/qbittorrent/qBittorrent.git \
+    && git clone https://github.com/qbittorrent/qBittorrent.git /opt/qBittorrent \
     && cd /opt/qBittorrent \
     && ./configure --disable-gui && make -j$(nproc) && make install \
     && cd /opt \
