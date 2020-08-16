@@ -19,8 +19,8 @@ Docker container which runs the latest [qBittorrent](https://github.com/qbittorr
 * BitTorrent port 8999 by default
 
 # Run container from Docker registry
-The container is available from the Docker registry and this is the simplest way to get it.
-To run the container use this command:
+The container is available from the Docker registry and this is the simplest way to get it  
+To run the container use this command, with additional parameters, please refer to the Variables, Volumes, and Ports section:
 
 ```
 $ docker run --privileged  -d \
