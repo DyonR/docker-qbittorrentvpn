@@ -87,6 +87,7 @@ RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.li
     openresolv \
     wireguard-tools \
     ipcalc \
+    ca-certificates \
     && apt-get clean \
     && apt -y autoremove \
     && rm -rf \
