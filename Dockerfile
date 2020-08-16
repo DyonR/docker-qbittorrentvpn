@@ -7,8 +7,7 @@ RUN usermod -u 99 nobody
 # Make directories
 RUN mkdir -p /downloads /config/qBittorrent /etc/openvpn /etc/qbittorrent
 
-RUN cd /opt \
-    && apt update \
+RUN apt update \
     && apt -y upgrade \
     && apt -y install --no-install-recommends \
     curl \
@@ -61,7 +60,13 @@ RUN cd /opt \
     python3 \
     qtbase5-dev \
     qttools5-dev \
-    libqt5svg5-dev
+    libqt5svg5-dev \
+    && apt-get clean \
+    && apt -y autoremove \
+    && rm -rf \
+    /var/lib/apt/lists/* \
+    /tmp/* \
+    /var/tmp/*
 
 RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable-wireguard.list \ 
     && printf 'Package: *\nPin: release a=unstable\nPin-Priority: 150\n' > /etc/apt/preferences.d/limit-unstable \
