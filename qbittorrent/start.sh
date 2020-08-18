@@ -62,22 +62,22 @@ if [[ ${ENABLE_SSL} == 'yes' ]]; then
 			echo "[WARNING] If you manage the SSL config yourself, you can ignore this." | ts '%Y-%m-%d %H:%M:%.S'
 fi
 
-# Check if the PGID exists, if not create the group with the name 'qbittorent'
+# Check if the PGID exists, if not create the group with the name 'qbittorrent'
 grep $"${PGID}:" /etc/group > /dev/null 2>&1
 if [ $? -eq 0 ]; then
 	echo "[INFO] A group with PGID $PGID already exists in /etc/group, nothing to do." | ts '%Y-%m-%d %H:%M:%.S'
 else
-	echo "[INFO] A group with PGID $PGID does not exist, adding a group called 'qbittorent' with PGID $PGID" | ts '%Y-%m-%d %H:%M:%.S'
-	groupadd -g $PGID qbittorent
+	echo "[INFO] A group with PGID $PGID does not exist, adding a group called 'qbittorrent' with PGID $PGID" | ts '%Y-%m-%d %H:%M:%.S'
+	groupadd -g $PGID qbittorrent
 fi
 
-# Check if the PUID exists, if not create the user with the name 'qbittorent', with the correct group
+# Check if the PUID exists, if not create the user with the name 'qbittorrent', with the correct group
 grep $"${PUID}:" /etc/passwd > /dev/null 2>&1
 if [ $? -eq 0 ]; then
 	echo "[INFO] An user with PUID $PUID already exists in /etc/passwd, nothing to do." | ts '%Y-%m-%d %H:%M:%.S'
 else
-	echo "[INFO] An user with PUID $PUID does not exist, adding an user called 'qbittorent user' with PUID $PUID" | ts '%Y-%m-%d %H:%M:%.S'
-	useradd -c "qbittorent user" -g $PGID -u $PUID qbittorent
+	echo "[INFO] An user with PUID $PUID does not exist, adding an user called 'qbittorrent user' with PUID $PUID" | ts '%Y-%m-%d %H:%M:%.S'
+	useradd -c "qbittorrent user" -g $PGID -u $PUID qbittorrent
 fi
 
 # Set the umask
