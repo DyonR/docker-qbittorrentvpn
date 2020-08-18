@@ -36,12 +36,12 @@ if [[ ${ENABLE_SSL} == 'yes' ]]; then
 			echo "/config/qBittorrent/config/qBittorrent.conf doesn't have the WebUICertificate.crt loaded. Added it to the config." | ts '%Y-%m-%d %H:%M:%.S'
 			echo 'WebUI\HTTPS\CertificatePath=/config/qBittorrent/config/WebUICertificate.crt' >> "/config/qBittorrent/config/qBittorrent.conf"
 	fi
-	if grep -Fxq 'WebUI\HTTPS\CertificatePath=/config/qBittorrent/config/WebUIKey.key' "/config/qBittorrent/config/qBittorrent.conf" 
+	if grep -Fxq 'WebUI\HTTPS\KeyPath=/config/qBittorrent/config/WebUIKey.key' "/config/qBittorrent/config/qBittorrent.conf" 
 		then
 			echo "/config/qBittorrent/config/qBittorrent.conf already has the line WebUIKey.key loaded, nothing to do." | ts '%Y-%m-%d %H:%M:%.S'
 		else
 			echo "/config/qBittorrent/config/qBittorrent.conf doesn't have the WebUIKey.key loaded. Added it to the config." | ts '%Y-%m-%d %H:%M:%.S'
-			echo 'WebUI\HTTPS\CertificatePath=/config/qBittorrent/config/WebUIKey.key' >> "/config/qBittorrent/config/qBittorrent.conf"
+			echo 'WebUI\HTTPS\KeyPath=/config/qBittorrent/config/WebUIKey.key' >> "/config/qBittorrent/config/qBittorrent.conf"
 	fi
 	if grep -xq 'WebUI\\HTTPS\\Enabled=true\|WebUI\\HTTPS\\Enabled=false' "/config/qBittorrent/config/qBittorrent.conf"
 	then
