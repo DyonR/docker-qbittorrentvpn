@@ -11,7 +11,7 @@ chown -R ${PUID}:${PGID} /downloads
 
 # Check if ServerConfig.json exists, if not, copy the template over
 if [ ! -e /config/qBittorrent/config/qBittorrent.conf ]; then
-	echo "[INFO] qBittorrent.conf is missing, this is normal for the first launch! Copying template" | ts '%Y-%m-%d %H:%M:%.S'
+	echo "[WARNING] qBittorrent.conf is missing, this is normal for the first launch! Copying template." | ts '%Y-%m-%d %H:%M:%.S'
 	cp /etc/qbittorrent/qBittorrent.conf /config/qBittorrent/config/qBittorrent.conf
 	chmod 755 /config/qBittorrent/config/qBittorrent.conf
 	chown ${PUID}:${PGID} /config/qBittorrent/config/qBittorrent.conf
@@ -22,11 +22,11 @@ export ENABLE_SSL=$(echo "${ENABLE_SSL,,}")
 if [[ ${ENABLE_SSL} == 'yes' ]]; then
 	echo "[INFO] ENABLE_SSL is set to ${ENABLE_SSL}" | ts '%Y-%m-%d %H:%M:%.S'
 	if [ ! -e /config/qBittorrent/config/WebUICertificate.crt ]; then
-		echo "[INFO] WebUI Certificate is missing, generating a new Certificate and Key" | ts '%Y-%m-%d %H:%M:%.S'
+		echo "[WARNING] WebUI Certificate is missing, generating a new Certificate and Key" | ts '%Y-%m-%d %H:%M:%.S'
 		openssl req -new -x509 -nodes -out /config/qBittorrent/config/WebUICertificate.crt -keyout /config/qBittorrent/config/WebUIKey.key -subj "/C=NL/ST=localhost/L=localhost/O=/OU=/CN="
 		chown -R ${PUID}:${PGID} /config/qBittorrent/config
 	elif [ ! -e /config/qBittorrent/config/WebUIKey.crt ]; then
-		echo "[INFO] WebUI Key is missing, generating a new Certificate and Key" | ts '%Y-%m-%d %H:%M:%.S'
+		echo "[WARNING] WebUI Key is missing, generating a new Certificate and Key" | ts '%Y-%m-%d %H:%M:%.S'
 		openssl req -new -x509 -nodes -out /config/qBittorrent/config/WebUICertificate.crt -keyout /config/qBittorrent/config/WebUIKey.key -subj "/C=NL/ST=localhost/L=localhost/O=/OU=/CN="
 		chown -R ${PUID}:${PGID} /config/qBittorrent/config
 	fi
