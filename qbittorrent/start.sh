@@ -11,28 +11,75 @@ chown -R ${PUID}:${PGID} /downloads
 
 # Check if ServerConfig.json exists, if not, copy the template over
 if [ ! -e /config/qBittorrent/config/qBittorrent.conf ]; then
-	echo "[INFO] qBittorrent.conf is missing, this is normal for the first launch! Copying template" | ts '%Y-%m-%d %H:%M:%.S'
+	echo "[WARNING] qBittorrent.conf is missing, this is normal for the first launch! Copying template." | ts '%Y-%m-%d %H:%M:%.S'
 	cp /etc/qbittorrent/qBittorrent.conf /config/qBittorrent/config/qBittorrent.conf
 	chmod 755 /config/qBittorrent/config/qBittorrent.conf
 	chown ${PUID}:${PGID} /config/qBittorrent/config/qBittorrent.conf
 fi
 
-# Check if the PGID exists, if not create the group with the name 'qbittorent'
+# The mess down here checks if SSL is enabled.
+export ENABLE_SSL=$(echo "${ENABLE_SSL,,}")
+if [[ ${ENABLE_SSL} == 'yes' ]]; then
+	echo "[INFO] ENABLE_SSL is set to ${ENABLE_SSL}" | ts '%Y-%m-%d %H:%M:%.S'
+	echo "[SYSTEM] If you use Unraid, and get something like a 'ERR_EMPTY_RESPONSE' in your browser, add https:// to the front of the IP, and/or do this:" | ts '%Y-%m-%d %H:%M:%.S'
+	echo "[SYSTEM] Edit this Docker, change the slider in the top right to 'advanced view' and change http to https at the WebUI setting." | ts '%Y-%m-%d %H:%M:%.S'
+	if [ ! -e /config/qBittorrent/config/WebUICertificate.crt ]; then
+		echo "[WARNING] WebUI Certificate is missing, generating a new Certificate and Key" | ts '%Y-%m-%d %H:%M:%.S'
+		openssl req -new -x509 -nodes -out /config/qBittorrent/config/WebUICertificate.crt -keyout /config/qBittorrent/config/WebUIKey.key -subj "/C=NL/ST=localhost/L=localhost/O=/OU=/CN="
+		chown -R ${PUID}:${PGID} /config/qBittorrent/config
+	elif [ ! -e /config/qBittorrent/config/WebUIKey.crt ]; then
+		echo "[WARNING] WebUI Key is missing, generating a new Certificate and Key" | ts '%Y-%m-%d %H:%M:%.S'
+		openssl req -new -x509 -nodes -out /config/qBittorrent/config/WebUICertificate.crt -keyout /config/qBittorrent/config/WebUIKey.key -subj "/C=NL/ST=localhost/L=localhost/O=/OU=/CN="
+		chown -R ${PUID}:${PGID} /config/qBittorrent/config
+	fi
+	if grep -Fxq 'WebUI\HTTPS\CertificatePath=/config/qBittorrent/config/WebUICertificate.crt' "/config/qBittorrent/config/qBittorrent.conf" 
+		then
+			echo "[INFO] /config/qBittorrent/config/qBittorrent.conf already has the line WebUICertificate.crt loaded, nothing to do." | ts '%Y-%m-%d %H:%M:%.S'
+		else
+			echo "[WARNING] /config/qBittorrent/config/qBittorrent.conf doesn't have the WebUICertificate.crt loaded. Added it to the config." | ts '%Y-%m-%d %H:%M:%.S'
+			echo 'WebUI\HTTPS\CertificatePath=/config/qBittorrent/config/WebUICertificate.crt' >> "/config/qBittorrent/config/qBittorrent.conf"
+	fi
+	if grep -Fxq 'WebUI\HTTPS\KeyPath=/config/qBittorrent/config/WebUIKey.key' "/config/qBittorrent/config/qBittorrent.conf" 
+		then
+			echo "[INFO] /config/qBittorrent/config/qBittorrent.conf already has the line WebUIKey.key loaded, nothing to do." | ts '%Y-%m-%d %H:%M:%.S'
+		else
+			echo "[WARNING] /config/qBittorrent/config/qBittorrent.conf doesn't have the WebUIKey.key loaded. Added it to the config." | ts '%Y-%m-%d %H:%M:%.S'
+			echo 'WebUI\HTTPS\KeyPath=/config/qBittorrent/config/WebUIKey.key' >> "/config/qBittorrent/config/qBittorrent.conf"
+	fi
+	if grep -xq 'WebUI\\HTTPS\\Enabled=true\|WebUI\\HTTPS\\Enabled=false' "/config/qBittorrent/config/qBittorrent.conf"
+		then
+			if grep -xq 'WebUI\\HTTPS\\Enabled=false' "/config/qBittorrent/config/qBittorrent.conf"
+				then
+					echo "[WARNING] /config/qBittorrent/config/qBittorrent.conf does have the WebUI\HTTPS\Enabled set to false, changing it to true." | ts '%Y-%m-%d %H:%M:%.S'
+					sed -i 's/WebUI\\HTTPS\\Enabled=false/WebUI\\HTTPS\\Enabled=true/g' "/config/qBittorrent/config/qBittorrent.conf"
+				else
+					echo "[INFO] /config/qBittorrent/config/qBittorrent.conf does have the WebUI\HTTPS\Enabled already set to true." | ts '%Y-%m-%d %H:%M:%.S'
+			fi
+		else
+			echo "[WARNING] /config/qBittorrent/config/qBittorrent.conf doesn't have the WebUI\HTTPS\Enabled loaded. Added it to the config." | ts '%Y-%m-%d %H:%M:%.S'
+			echo 'WebUI\HTTPS\Enabled=true' >> "/config/qBittorrent/config/qBittorrent.conf"
+		fi
+		else
+			echo "[WARNING] ENABLE_SSL is set to ${ENABLE_SSL}, SSL is not enabled. This could cause issues with logging if other apps use the same Cookie name (SID)." | ts '%Y-%m-%d %H:%M:%.S'
+			echo "[WARNING] If you manage the SSL config yourself, you can ignore this." | ts '%Y-%m-%d %H:%M:%.S'
+fi
+
+# Check if the PGID exists, if not create the group with the name 'qbittorrent'
 grep $"${PGID}:" /etc/group > /dev/null 2>&1
 if [ $? -eq 0 ]; then
 	echo "[INFO] A group with PGID $PGID already exists in /etc/group, nothing to do." | ts '%Y-%m-%d %H:%M:%.S'
 else
-	echo "[INFO] A group with PGID $PGID does not exist, adding a group called 'qbittorent' with PGID $PGID" | ts '%Y-%m-%d %H:%M:%.S'
-	groupadd -g $PGID qbittorent
+	echo "[INFO] A group with PGID $PGID does not exist, adding a group called 'qbittorrent' with PGID $PGID" | ts '%Y-%m-%d %H:%M:%.S'
+	groupadd -g $PGID qbittorrent
 fi
 
-# Check if the PUID exists, if not create the user with the name 'qbittorent', with the correct group
+# Check if the PUID exists, if not create the user with the name 'qbittorrent', with the correct group
 grep $"${PUID}:" /etc/passwd > /dev/null 2>&1
 if [ $? -eq 0 ]; then
 	echo "[INFO] An user with PUID $PUID already exists in /etc/passwd, nothing to do." | ts '%Y-%m-%d %H:%M:%.S'
 else
-	echo "[INFO] An user with PUID $PUID does not exist, adding an user called 'qbittorent user' with PUID $PUID" | ts '%Y-%m-%d %H:%M:%.S'
-	useradd -c "qbittorent user" -g $PGID -u $PUID qbittorent
+	echo "[INFO] An user with PUID $PUID does not exist, adding an user called 'qbittorrent user' with PUID $PUID" | ts '%Y-%m-%d %H:%M:%.S'
+	useradd -c "qbittorrent user" -g $PGID -u $PUID qbittorrent
 fi
 
 # Set the umask
