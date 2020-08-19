@@ -7,63 +7,35 @@ RUN usermod -u 99 nobody
 # Make directories
 RUN mkdir -p /downloads /config/qBittorrent /etc/openvpn /etc/qbittorrent
 
+# Compile libtorrent-rasterbar
 RUN apt update \
     && apt -y upgrade \
     && apt -y install --no-install-recommends \
     curl \
     jq \
-    build-essential \
     ca-certificates \
-    pkg-config \
-    automake \
-    libtool \
-    git \
-    zlib1g-dev \
-    libssl-dev \
-    libgeoip-dev \
-    libboost-dev \
+    g++ \
     libboost-system-dev \
-    libboost-chrono-dev \
-    libboost-random-dev \
-    python3 \
-    qtbase5-dev \
-    qttools5-dev \
-    libqt5svg5-dev \
-    && QBITTORRENT_RELEASE=$(curl -sX GET "https://api.github.com/repos/qBittorrent/qBittorrent/tags" | jq '.[0] .name' | tr -d '"') \
+    libssl-dev \
+    make \
     && LIBTORRENT_ASSETS=$(curl -sX GET "https://api.github.com/repos/arvidn/libtorrent/releases" | jq '.[0] .assets_url' | tr -d '"') \
     && LIBTORRENT_DOWNLOAD_URL=$(curl -sX GET ${LIBTORRENT_ASSETS} | jq '.[0] .browser_download_url' | tr -d '"') \
     && LIBTORRENT_NAME=$(curl -sX GET ${LIBTORRENT_ASSETS} | jq '.[0] .name' | tr -d '"') \
-    && curl -o /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz -L https://github.com/qbittorrent/qBittorrent/archive/${QBITTORRENT_RELEASE}.tar.gz \
     && curl -o /opt/${LIBTORRENT_NAME} -L ${LIBTORRENT_DOWNLOAD_URL} \
-    && tar -xvzf /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz \
-    && tar -xvzf /opt/${LIBTORRENT_NAME} \
-    && rm /opt/*.tar.gz \
+    && tar -xzf /opt/${LIBTORRENT_NAME} \
+    && rm /opt/${LIBTORRENT_NAME} \
     && cd /opt/libtorrent-rasterbar* \
     && ./configure --disable-debug --enable-encryption && make clean && make -j$(nproc) && make install \
-    && cd /opt/qBittorrent-${QBITTORRENT_RELEASE} \
-    && ./configure --disable-gui && make -j$(nproc) && make install \
     && cd /opt \
     && rm -rf /opt/* \
     && apt -y purge \
     curl \
     jq \
-    build-essential \
     ca-certificates \
-    pkg-config \
-    automake \
-    libtool \
-    git \
-    zlib1g-dev \
-    libssl-dev \
-    libgeoip-dev \
-    libboost-dev \
+    g++ \
     libboost-system-dev \
-    libboost-chrono-dev \
-    libboost-random-dev \
-    python3 \
-    qtbase5-dev \
-    qttools5-dev \
-    libqt5svg5-dev \
+    libssl-dev \
+    make \
     && apt-get clean \
     && apt -y autoremove \
     && rm -rf \
@@ -71,26 +43,70 @@ RUN apt update \
     /tmp/* \
     /var/tmp/*
 
+# Compile qBittorrent
+RUN apt update \
+    && apt -y upgrade \
+    && apt -y install --no-install-recommends \
+    ca-certificates \
+    curl \
+    g++ \
+    jq \
+    libboost-system-dev \
+    libssl-dev \
+    make \
+    pkg-config \
+    qtbase5-dev \
+    qttools5-dev \
+    zlib1g-dev \
+    && QBITTORRENT_RELEASE=$(curl -sX GET "https://api.github.com/repos/qBittorrent/qBittorrent/tags" | jq '.[0] .name' | tr -d '"') \
+    && curl -o /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz -L "https://github.com/qbittorrent/qBittorrent/archive/${QBITTORRENT_RELEASE}.tar.gz" \
+    && tar -xzf /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz \
+    && rm /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz \
+    && cd /opt/qBittorrent-${QBITTORRENT_RELEASE} \
+    && ./configure --disable-gui && make -j$(nproc) && make install \
+    && cd /opt \
+    && rm -rf /opt/* \
+    && apt -y purge \
+    ca-certificates \
+    curl \
+    g++ \
+    jq \
+    libboost-system-dev \
+    libssl-dev \
+    make \
+    pkg-config \
+    qtbase5-dev \
+    qttools5-dev \
+    zlib1g-dev \
+    && apt-get clean \
+    && apt -y autoremove \
+    && rm -rf \
+    /var/lib/apt/lists/* \
+    /tmp/* \
+    /var/tmp/*
+
+# Install WireGuard, OpenVPN and other dependencies for running qbittorrent-nox and the container scripts
 RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable-wireguard.list \ 
     && printf 'Package: *\nPin: release a=unstable\nPin-Priority: 150\n' > /etc/apt/preferences.d/limit-unstable \
     && apt update \
     && apt -y install --no-install-recommends \
-    libboost-system1.67.0 \
-    libqt5xml5 \
-    libqt5network5 \
-    libssl1.1 \
-    kmod \
-    iptables \
+    ca-certificates \
+    curl \
+    dos2unix \
     inetutils-ping \
-    procps \
+    ipcalc \
+    iptables \
+    kmod \
+    libboost-system1.67.0 \
+    libqt5network5 \
+    libqt5xml5 \
+    libssl1.1 \
     moreutils \
     net-tools \
-    dos2unix \
-    openvpn \
     openresolv \
+    openvpn \
+    procps \
     wireguard-tools \
-    ipcalc \
-    ca-certificates \
     && apt-get clean \
     && apt -y autoremove \
     && rm -rf \
