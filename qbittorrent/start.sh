@@ -29,7 +29,7 @@ if [[ ${ENABLE_SSL} == 'yes' ]]; then
 		echo "[WARNING] WebUI Certificate is missing, generating a new Certificate and Key" | ts '%Y-%m-%d %H:%M:%.S'
 		openssl req -new -x509 -nodes -out /config/qBittorrent/config/WebUICertificate.crt -keyout /config/qBittorrent/config/WebUIKey.key -subj "/C=NL/ST=localhost/L=localhost/O=/OU=/CN="
 		chown -R ${PUID}:${PGID} /config/qBittorrent/config
-	elif [ ! -e /config/qBittorrent/config/WebUIKey.crt ]; then
+	elif [ ! -e /config/qBittorrent/config/WebUIKey.key ]; then
 		echo "[WARNING] WebUI Key is missing, generating a new Certificate and Key" | ts '%Y-%m-%d %H:%M:%.S'
 		openssl req -new -x509 -nodes -out /config/qBittorrent/config/WebUICertificate.crt -keyout /config/qBittorrent/config/WebUIKey.key -subj "/C=NL/ST=localhost/L=localhost/O=/OU=/CN="
 		chown -R ${PUID}:${PGID} /config/qBittorrent/config
