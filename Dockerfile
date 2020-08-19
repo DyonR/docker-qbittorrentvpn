@@ -11,10 +11,10 @@ RUN mkdir -p /downloads /config/qBittorrent /etc/openvpn /etc/qbittorrent
 RUN apt update \
     && apt -y upgrade \
     && apt -y install --no-install-recommends \
-    curl \
-    jq \
     ca-certificates \
+    curl \
     g++ \
+    jq \
     libboost-system-dev \
     libssl-dev \
     make \
@@ -29,10 +29,10 @@ RUN apt update \
     && cd /opt \
     && rm -rf /opt/* \
     && apt -y purge \
-    curl \
-    jq \
     ca-certificates \
+    curl \
     g++ \
+    jq \
     libboost-system-dev \
     libssl-dev \
     make \
