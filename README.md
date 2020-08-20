@@ -14,7 +14,7 @@ Docker container which runs the latest [qBittorrent](https://github.com/qbittorr
 * Selectively enable or disable WireGuard or OpenVPN support
 * IP tables killswitch to prevent IP leaking when VPN connection fails
 * Specify name servers to add to container
-* Configure UID and GID for config files and blackhole for qBittorrent
+* Configure UID and GID for config files and /downloads for qBittorrent
 * Created with [Unraid](https://unraid.net/) in mind
 * BitTorrent port 8999 by default
 
@@ -27,6 +27,7 @@ $ docker run --privileged  -d \
               -v /your/config/path/:/config \
               -v /your/downloads/path/:/downloads \
               -e "VPN_ENABLED=yes" \
+              -e "VPN_TYPE=wireguard" \
               -e "LAN_NETWORK=192.168.0.0/24" \
               -e "NAME_SERVERS=1.1.1.1,1.0.0.1" \
               -p 8080:8080 \
@@ -45,8 +46,8 @@ $ docker run --privileged  -d \
 |`LAN_NETWORK`| Yes (atleast one) | Comma delimited local Network's with CIDR notation |`LAN_NETWORK=192.168.0.0/24,10.10.0.0/24`||
 |`ENABLE_SSL`| No | Let the container handle SSL (yes/no)? |`ENABLE_SSL=yes`|`yes`|
 |`NAME_SERVERS`| No | Comma delimited name servers |`NAME_SERVERS=1.1.1.1,1.0.0.1`|`1.1.1.1,1.0.0.1`|
-|`PUID`| No | UID applied to config files and blackhole |`PUID=99`|`99`|
-|`PGID`| No | GID applied to config files and blackhole |`PGID=100`|`100`|
+|`PUID`| No | UID applied to /config files and /downloads |`PUID=99`|`99`|
+|`PGID`| No | GID applied to /config files and /downloads  |`PGID=100`|`100`|
 |`UMASK`| No | |`UMASK=002`|`002`|
 |`HEALTH_CHECK_HOST`| No |This is the host or IP that the healthcheck script will use to check an active connection|`HEALTH_CHECK_HOST=one.one.one.one`|`one.one.one.one`|
 |`HEALTH_CHECK_INTERVAL`| No |This is the time in seconds that the container waits to see if the internet connection still works (check if VPN died)|`HEALTH_CHECK_INTERVAL=300`|`300`|
@@ -61,7 +62,7 @@ $ docker run --privileged  -d \
 | Volume | Required | Function | Example |
 |----------|----------|----------|----------|
 | `config` | Yes | qBittorrent, WireGuard and OpenVPN config files | `/your/config/path/:/config`|
-| `downloads` | No | Default blackhole path for saving magnet links | `/your/downloads/path/:/downloads`|
+| `downloads` | No | Default downloads path for saving downloads | `/your/downloads/path/:/downloads`|
 
 ## Ports
 | Port | Proto | Required | Function | Example |
