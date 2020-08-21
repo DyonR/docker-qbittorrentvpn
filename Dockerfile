@@ -120,7 +120,7 @@ RUN echo "deb http://deb.debian.org/debian/ buster non-free" > /etc/apt/sources.
     && apt -y upgrade \
     && apt -y install --no-install-recommends \
     unrar \
-    p7zip-full
+    p7zip-full \
     unzip \
     zip \
     && apt-get clean \
