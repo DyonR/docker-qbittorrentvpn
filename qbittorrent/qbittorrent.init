@@ -1,12 +1,12 @@
 #!/bin/bash
 ### BEGIN INIT INFO
-# Provides: jackett
+# Provides: qBittorrent
 # Required-Start: $remote_fs $syslog
 # Required-Stop: $remote_fs $syslog
 # Default-Start: 2 3 4 5
 # Default-Stop: 0 1 6
-# Short-Description: Starts Jackett
-# Description: Start jackett on start. Change USER= before running
+# Short-Description: Starts qBittorrent
+# Description: Start qBittorrent on start. Change USER= before running
 ### END INIT INFO
 
 # Author: Jesper Smith
