@@ -19,9 +19,9 @@ if [[ $INSTALL_PYTHON3 == "yes" ]]; then
     if [ ! -e /usr/bin/python3 ]; then
         echo "[INFO] Python3 not yet installed, installing..." | ts '%Y-%m-%d %H:%M:%.S'
         apt -qq update \
-        && apt -qq install python3 \
+        && apt -y install python3 \
         && apt-get clean \
-        && apt -qq autoremove \
+        && apt -y autoremove \
         && rm -rf \
         /var/lib/apt/lists/* \
         /tmp/* \
