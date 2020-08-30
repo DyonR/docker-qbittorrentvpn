@@ -13,6 +13,22 @@ if [[ ! -z "${check_network}" ]]; then
 	exit 1
 fi
 
+export INSTALL_PYTHON3=$(echo "${INSTALL_PYTHON3,,}")
+if [[ $INSTALL_PYTHON3 == "yes" ]]; then
+    echo "[INFO] INSTALL_PYTHON3 defined as '${INSTALL_PYTHON3}'" | ts '%Y-%m-%d %H:%M:%.S'
+    if [ ! -e /usr/bin/python3 ]; then
+        echo "[INFO] Python3 not yet installed, installing..." | ts '%Y-%m-%d %H:%M:%.S'
+        apt -qq update \
+        && apt -qq install python3 \
+        && apt-get clean \
+        && apt -qq autoremove \
+        && rm -rf \
+        /var/lib/apt/lists/* \
+        /tmp/* \
+        /var/tmp/*
+    fi
+fi
+
 export VPN_ENABLED=$(echo "${VPN_ENABLED}" | sed -e 's~^[ \t]*~~;s~[ \t]*$~~')
 if [[ ! -z "${VPN_ENABLED}" ]]; then
 	echo "[INFO] VPN_ENABLED defined as '${VPN_ENABLED}'" | ts '%Y-%m-%d %H:%M:%.S'
