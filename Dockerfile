@@ -58,7 +58,7 @@ RUN apt update \
     qtbase5-dev \
     qttools5-dev \
     zlib1g-dev \
-    && QBITTORRENT_RELEASE=$(curl -sX GET "https://api.github.com/repos/qBittorrent/qBittorrent/tags" | jq '.[0] .name' | tr -d '"') \
+    && QBITTORRENT_RELEASE=$(curl -sX GET "https://api.github.com/repos/qBittorrent/qBittorrent/tags" | jq '.[] | select(.name=="release-4.2.5") | .name' | head -n 1 | tr -d '"') \
     && curl -o /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz -L "https://github.com/qbittorrent/qBittorrent/archive/${QBITTORRENT_RELEASE}.tar.gz" \
     && tar -xzf /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz \
     && rm /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz \
