@@ -264,6 +264,8 @@ if [[ $VPN_ENABLED == "yes" ]]; then
 	else
 		echo "[INFO] Starting WireGuard..." | ts '%Y-%m-%d %H:%M:%.S'
 		cd /config/wireguard
+		wg-quick down $VPN_CONFIG || echo "WireGuard is down already" | ts '%Y-%m-%d %H:%M:%.S' # Run wg-quick down as an extra safeguard in case WireGuard is still up for some reason
+		sleep 0.5 # Just to give WireGuard a bit to go down
 		wg-quick up $VPN_CONFIG
 		#exec /bin/bash /etc/openvpn/openvpn.init start &
 	fi
