@@ -99,13 +99,13 @@ if [[ $VPN_ENABLED == "yes" ]]; then
 			echo "${VPN_PASSWORD}" >> /config/openvpn/credentials.conf
 
 			# Replace line with one that points to credentials.conf
-			auth_cred_exist=$(cat ${VPN_CONFIG} | grep -m 1 'auth-user-pass')
+			auth_cred_exist=$(cat "${VPN_CONFIG}" | grep -m 1 'auth-user-pass')
 			if [[ ! -z "${auth_cred_exist}" ]]; then
 				# Get line number of auth-user-pass
-				LINE_NUM=$(grep -Fn -m 1 'auth-user-pass' ${VPN_CONFIG} | cut -d: -f 1)
-				sed -i "${LINE_NUM}s/.*/auth-user-pass credentials.conf/" ${VPN_CONFIG}
+				LINE_NUM=$(grep -Fn -m 1 'auth-user-pass' "${VPN_CONFIG}" | cut -d: -f 1)
+				sed -i "${LINE_NUM}s/.*/auth-user-pass credentials.conf/" "${VPN_CONFIG}"
 			else
-				sed -i "1s/.*/auth-user-pass credentials.conf/" ${VPN_CONFIG}
+				sed -i "1s/.*/auth-user-pass credentials.conf/" "${VPN_CONFIG}"
 			fi
 		fi
 	fi
@@ -259,11 +259,13 @@ if [[ $VPN_ENABLED == "yes" ]]; then
 	if [[ "${VPN_TYPE}" == "openvpn" ]]; then
 		echo "[INFO] Starting OpenVPN..." | ts '%Y-%m-%d %H:%M:%.S'
 		cd /config/openvpn
-		exec openvpn --config ${VPN_CONFIG} &
+		exec openvpn --config "${VPN_CONFIG}" &
 		#exec /bin/bash /etc/openvpn/openvpn.init start &
 	else
 		echo "[INFO] Starting WireGuard..." | ts '%Y-%m-%d %H:%M:%.S'
 		cd /config/wireguard
+		wg-quick down $VPN_CONFIG || echo "WireGuard is down already" | ts '%Y-%m-%d %H:%M:%.S' # Run wg-quick down as an extra safeguard in case WireGuard is still up for some reason
+		sleep 0.5 # Just to give WireGuard a bit to go down
 		wg-quick up $VPN_CONFIG
 		#exec /bin/bash /etc/openvpn/openvpn.init start &
 	fi
