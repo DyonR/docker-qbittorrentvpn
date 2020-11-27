@@ -18,14 +18,14 @@ RUN apt update \
     libboost-system-dev \
     libssl-dev \
     make \
-    && LIBTORRENT_ASSETS=$(curl -sX GET "https://api.github.com/repos/arvidn/libtorrent/releases" | jq '.[] | select(.prerelease==false) | select(.name=="libtorrent-1.2.8") | .assets_url' | head -n 1 | tr -d '"') \
+    && LIBTORRENT_ASSETS=$(curl -sX GET "https://api.github.com/repos/arvidn/libtorrent/releases" | jq '.[] | select(.prerelease==false) | select(.target_commitish=="RC_1_2") | .assets_url' | head -n 1 | tr -d '"') \
     && LIBTORRENT_DOWNLOAD_URL=$(curl -sX GET ${LIBTORRENT_ASSETS} | jq '.[0] .browser_download_url' | tr -d '"') \
     && LIBTORRENT_NAME=$(curl -sX GET ${LIBTORRENT_ASSETS} | jq '.[0] .name' | tr -d '"') \
     && curl -o /opt/${LIBTORRENT_NAME} -L ${LIBTORRENT_DOWNLOAD_URL} \
     && tar -xzf /opt/${LIBTORRENT_NAME} \
     && rm /opt/${LIBTORRENT_NAME} \
     && cd /opt/libtorrent-rasterbar* \
-    && ./configure --disable-debug --enable-encryption && make clean && make -j$(nproc) && make install \
+    && ./configure CXXFLAGS="-std=c++14" --disable-debug --enable-encryption && make clean && make -j$(nproc) && make install \
     && cd /opt \
     && rm -rf /opt/* \
     && apt -y purge \
@@ -63,7 +63,7 @@ RUN apt update \
     && tar -xzf /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz \
     && rm /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz \
     && cd /opt/qBittorrent-${QBITTORRENT_RELEASE} \
-    && ./configure --disable-gui && make -j$(nproc) && make install \
+    && ./configure CXXFLAGS="-std=c++14" --disable-gui && make -j$(nproc) && make install \
     && cd /opt \
     && rm -rf /opt/* \
     && apt -y purge \
