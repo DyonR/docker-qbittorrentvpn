@@ -160,6 +160,22 @@ RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.li
     /tmp/* \
     /var/tmp/*
 
+RUN echo "deb http://deb.debian.org/debian/ buster non-free" > /etc/apt/sources.list.d/non-free-unrar.list \
+    && printf 'Package: *\nPin: release a=non-free\nPin-Priority: 150\n' > /etc/apt/preferences.d/limit-non-free \
+    && apt update \
+    && apt -y upgrade \
+    && apt -y install --no-install-recommends \
+    unrar \
+    p7zip-full \
+    unzip \
+    zip \
+    && apt-get clean \
+    && apt -y autoremove \
+    && rm -rf \
+    /var/lib/apt/lists/* \
+    /tmp/* \
+    /var/tmp/*
+
 VOLUME /config /downloads
 
 ADD openvpn/ /etc/openvpn/
