@@ -21,15 +21,15 @@ else
 	export VPN_ENABLED="yes"
 fi
 
-export DISABLE_IPV6=$(echo "${DISABLE_IPV6,,}")
-echo "[INFO] DISABLE_IPV6 is set to '${DISABLE_IPV6}'" | ts '%Y-%m-%d %H:%M:%.S'
-if [[ $DISABLE_IPV6 == "1" || $DISABLE_IPV6 == "true" || $DISABLE_IPV6 == "yes" || $DISABLE_IPV6 == "" ]]; then
-	echo "[INFO] Disabling IPv6 in sysctl" | ts '%Y-%m-%d %H:%M:%.S'
-	sysctl -w net.ipv6.conf.all.disable_ipv6=1 > /dev/null 2>&1
-else
-	echo "[INFO] Enabling IPv6 in sysctl" | ts '%Y-%m-%d %H:%M:%.S'
-	sysctl -w net.ipv6.conf.all.disable_ipv6=0 > /dev/null 2>&1
-fi
+#export DISABLE_IPV6=$(echo "${DISABLE_IPV6,,}")
+#echo "[INFO] DISABLE_IPV6 is set to '${DISABLE_IPV6}'" | ts '%Y-%m-%d %H:%M:%.S'
+#if [[ $DISABLE_IPV6 == "1" || $DISABLE_IPV6 == "true" || $DISABLE_IPV6 == "yes" || $DISABLE_IPV6 == "" ]]; then
+#	echo "[INFO] Disabling IPv6 in sysctl" | ts '%Y-%m-%d %H:%M:%.S'
+#	sysctl -w net.ipv6.conf.all.disable_ipv6=1 > /dev/null 2>&1
+#else
+#	echo "[INFO] Enabling IPv6 in sysctl" | ts '%Y-%m-%d %H:%M:%.S'
+#	sysctl -w net.ipv6.conf.all.disable_ipv6=0 > /dev/null 2>&1
+#fi
 
 if [[ $VPN_ENABLED == "yes" ]]; then
 	# Check if VPN_TYPE is set.
