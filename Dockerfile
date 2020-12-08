@@ -7,17 +7,67 @@ RUN usermod -u 99 nobody
 # Make directories
 RUN mkdir -p /downloads /config/qBittorrent /etc/openvpn /etc/qbittorrent
 
-# Compile libtorrent-rasterbar
+# Install Ninja
 RUN apt update \
-    && apt -y upgrade \
-    && apt -y install --no-install-recommends \
+    && apt upgrade -y \
+    && apt install -y --no-install-recommends \
     ca-certificates \
     curl \
-    g++ \
+    jq \
+    unzip \
+    && NINJA_ASSETS=$(curl -sX GET "https://api.github.com/repos/ninja-build/ninja/releases" | jq '.[] | select(.prerelease==false) | .assets_url' | head -n 1 | tr -d '"') \
+    && NINJA_DOWNLOAD_URL=$(curl -sX GET ${NINJA_ASSETS} | jq '.[] | select(.name | contains("ninja-linux")) .browser_download_url' | tr -d '"') \
+    && curl -o /opt/ninja-linux.zip -L ${NINJA_DOWNLOAD_URL} \
+    && unzip /opt/ninja-linux.zip \
+    && mv ninja /usr/local/bin/ninja \
+    && chmod +x /usr/local/bin/ninja \
+    && rm -rf /opt/* \
+    && apt purge -y \
+    ca-certificates \
+    curl \
+    jq \
+    unzip \
+    && apt-get clean \
+    && apt autoremove -y \
+    && rm -rf \
+    /var/lib/apt/lists/* \
+    /tmp/* \
+    /var/tmp/*
+
+# Install cmake
+RUN apt update \
+    && apt upgrade -y \
+    && apt install -y  --no-install-recommends \
+    ca-certificates \
+    curl \
+    jq \
+    && CMAKE_ASSETS=$(curl -sX GET "https://api.github.com/repos/Kitware/CMake/releases" | jq '.[] | select(.prerelease==false) | .assets_url' | head -n 1 | tr -d '"') \
+    && CMAKE_DOWNLOAD_URL=$(curl -sX GET ${CMAKE_ASSETS} | jq '.[] | select(.name | contains("Linux-x86_64.sh")) .browser_download_url' | tr -d '"') \
+    && curl -o /opt/cmake.sh -L ${CMAKE_DOWNLOAD_URL} \
+    && chmod +x /opt/cmake.sh \
+    && /bin/bash /opt/cmake.sh --skip-license --prefix=/usr \
+    && rm -rf /opt/* \
+    && apt purge -y \
+    ca-certificates \
+    curl \
+    jq \
+    && apt-get clean \
+    && apt autoremove -y \
+    && rm -rf \
+    /var/lib/apt/lists/* \
+    /tmp/* \
+    /var/tmp/*
+
+# Compile libtorrent
+RUN apt update \
+    && apt upgrade -y \
+    && apt install -y --no-install-recommends \
+    build-essential \
+    ca-certificates \
+    curl \
     jq \
     libboost-system-dev \
     libssl-dev \
-    make \
     && LIBTORRENT_ASSETS=$(curl -sX GET "https://api.github.com/repos/arvidn/libtorrent/releases" | jq '.[] | select(.prerelease==false) | select(.target_commitish=="RC_1_2") | .assets_url' | head -n 1 | tr -d '"') \
     && LIBTORRENT_DOWNLOAD_URL=$(curl -sX GET ${LIBTORRENT_ASSETS} | jq '.[0] .browser_download_url' | tr -d '"') \
     && LIBTORRENT_NAME=$(curl -sX GET ${LIBTORRENT_ASSETS} | jq '.[0] .name' | tr -d '"') \
@@ -25,19 +75,20 @@ RUN apt update \
     && tar -xzf /opt/${LIBTORRENT_NAME} \
     && rm /opt/${LIBTORRENT_NAME} \
     && cd /opt/libtorrent-rasterbar* \
-    && ./configure CXXFLAGS="-std=c++14" --disable-debug --enable-encryption && make clean && make -j$(nproc) && make install \
+    && cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_CXX_STANDARD=17 \
+    && cmake --build build --parallel $(nproc) \
+    && cmake --install build \
     && cd /opt \
     && rm -rf /opt/* \
-    && apt -y purge \
+    && apt purge -y \
+    build-essential \
     ca-certificates \
     curl \
-    g++ \
     jq \
     libboost-system-dev \
     libssl-dev \
-    make \
     && apt-get clean \
-    && apt -y autoremove \
+    && apt autoremove -y \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
@@ -45,53 +96,48 @@ RUN apt update \
 
 # Compile qBittorrent
 RUN apt update \
-    && apt -y upgrade \
-    && apt -y install --no-install-recommends \
+    && apt upgrade -y \
+    && apt install -y --no-install-recommends \
+    build-essential \
     ca-certificates \
     curl \
-    g++ \
-    jq \
+    git \
     libboost-system-dev \
     libssl-dev \
-    make \
     pkg-config \
     qtbase5-dev \
     qttools5-dev \
     zlib1g-dev \
-    && QBITTORRENT_RELEASE=$(curl -sX GET "https://api.github.com/repos/qBittorrent/qBittorrent/tags" | jq '.[0] .name' | tr -d '"') \
-    && curl -o /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz -L "https://github.com/qbittorrent/qBittorrent/archive/${QBITTORRENT_RELEASE}.tar.gz" \
-    && tar -xzf /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz \
-    && rm /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz \
-    && cd /opt/qBittorrent-${QBITTORRENT_RELEASE} \
-    && ./configure CXXFLAGS="-std=c++14" --disable-gui && make -j$(nproc) && make install \
+    && git clone https://github.com/qbittorrent/qBittorrent.git /opt/qBittorrent \
+    && cd /opt/qBittorrent \
+    && cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DGUI=OFF -DCMAKE_CXX_STANDARD=17 \
+    && cmake --build build --parallel $(nproc) \
+    && cmake --install build \
     && cd /opt \
     && rm -rf /opt/* \
-    && apt -y purge \
+    && apt purge -y \
+    build-essential \
     ca-certificates \
     curl \
-    g++ \
-    jq \
+    git \
     libboost-system-dev \
     libssl-dev \
-    make \
     pkg-config \
     qtbase5-dev \
     qttools5-dev \
     zlib1g-dev \
     && apt-get clean \
-    && apt -y autoremove \
+    && apt autoremove -y \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
     /var/tmp/*
 
-# Install WireGuard, OpenVPN and other dependencies for running qbittorrent-nox and the container scripts
-RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable-wireguard.list \ 
+RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable-wireguard.list \
     && printf 'Package: *\nPin: release a=unstable\nPin-Priority: 150\n' > /etc/apt/preferences.d/limit-unstable \
     && apt update \
-    && apt -y install --no-install-recommends \
+    && apt install -y --no-install-recommends \
     ca-certificates \
-    curl \
     dos2unix \
     inetutils-ping \
     ipcalc \
@@ -108,23 +154,7 @@ RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.li
     procps \
     wireguard-tools \
     && apt-get clean \
-    && apt -y autoremove \
-    && rm -rf \
-    /var/lib/apt/lists/* \
-    /tmp/* \
-    /var/tmp/*
-
-RUN echo "deb http://deb.debian.org/debian/ buster non-free" > /etc/apt/sources.list.d/non-free-unrar.list \
-    && printf 'Package: *\nPin: release a=non-free\nPin-Priority: 150\n' > /etc/apt/preferences.d/limit-non-free \
-    && apt update \
-    && apt -y upgrade \
-    && apt -y install --no-install-recommends \
-    unrar \
-    p7zip-full \
-    unzip \
-    zip \
-    && apt-get clean \
-    && apt -y autoremove \
+    && apt autoremove -y \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
