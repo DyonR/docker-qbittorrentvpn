@@ -6,15 +6,20 @@ fi
 # Set the correct rights accordingly to the PUID and PGID on /config/qBittorrent
 chown -R ${PUID}:${PGID} /config/qBittorrent
 
-# Set the rights on the /blackhole folder
+# Set the rights on the /downloads folder
 chown -R ${PUID}:${PGID} /downloads
 
-# Check if ServerConfig.json exists, if not, copy the template over
+# Check if qBittorrent.conf exists, if not, copy the template over
 if [ ! -e /config/qBittorrent/config/qBittorrent.conf ]; then
 	echo "[WARNING] qBittorrent.conf is missing, this is normal for the first launch! Copying template." | ts '%Y-%m-%d %H:%M:%.S'
 	cp /etc/qbittorrent/qBittorrent.conf /config/qBittorrent/config/qBittorrent.conf
 	chmod 755 /config/qBittorrent/config/qBittorrent.conf
 	chown ${PUID}:${PGID} /config/qBittorrent/config/qBittorrent.conf
+fi
+
+export INSTALL_PYTHON3=$(echo "${INSTALL_PYTHON3,,}")
+if [[ $INSTALL_PYTHON3 == "yes" ]]; then
+	/bin/bash /etc/qbittorrent/install-python3.sh
 fi
 
 # The mess down here checks if SSL is enabled.
