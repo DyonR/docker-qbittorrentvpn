@@ -58,7 +58,7 @@ RUN apt update \
     /tmp/* \
     /var/tmp/*
 
-# Compile libtorrent
+# Compile and install libtorrent-rasterbar
 RUN apt update \
     && apt upgrade -y \
     && apt install -y --no-install-recommends \
@@ -94,7 +94,7 @@ RUN apt update \
     /tmp/* \
     /var/tmp/*
 
-# Compile qBittorrent
+# Compile and install qBittorrent
 RUN apt update \
     && apt upgrade -y \
     && apt install -y --no-install-recommends \
@@ -102,6 +102,7 @@ RUN apt update \
     ca-certificates \
     curl \
     git \
+    jq \
     libboost-system-dev \
     libssl-dev \
     pkg-config \
@@ -123,6 +124,7 @@ RUN apt update \
     ca-certificates \
     curl \
     git \
+    jq \
     libboost-system-dev \
     libssl-dev \
     pkg-config \
@@ -136,6 +138,7 @@ RUN apt update \
     /tmp/* \
     /var/tmp/*
 
+# Install WireGuard and some other dependencies some of the scripts in the container rely on.
 RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable-wireguard.list \
     && printf 'Package: *\nPin: release a=unstable\nPin-Priority: 150\n' > /etc/apt/preferences.d/limit-unstable \
     && apt update \
@@ -163,6 +166,7 @@ RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.li
     /tmp/* \
     /var/tmp/*
 
+# Install (un)compressing tools like unrar, 7z, unzip and zip
 RUN echo "deb http://deb.debian.org/debian/ buster non-free" > /etc/apt/sources.list.d/non-free-unrar.list \
     && printf 'Package: *\nPin: release a=non-free\nPin-Priority: 150\n' > /etc/apt/preferences.d/limit-non-free \
     && apt update \
