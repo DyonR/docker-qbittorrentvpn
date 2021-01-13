@@ -7,6 +7,32 @@ RUN usermod -u 99 nobody
 # Make directories
 RUN mkdir -p /downloads /config/qBittorrent /etc/openvpn /etc/qbittorrent
 
+# Compile and install Boost
+RUN apt update \
+    && apt -y upgrade \
+    && apt -y install --no-install-recommends \
+    curl \
+    ca-certificates \
+    g++ \
+    && curl -o /opt/boost_1_75_0.tar.gz -L https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz \
+    && tar -xzf boost_1_75_0.tar.gz \
+    && cd /opt/boost_1_75_0 \
+    && ./bootstrap.sh --prefix=/usr \
+    && ./b2 --prefix=/usr install \
+    && cd /opt \
+    && rm -rf /opt/* \
+    && apt -y purge \
+    curl \
+    ca-certificates \
+    g++ \
+    && apt-get clean \
+    && apt -y autoremove \
+    && rm -rf \
+    /var/lib/apt/lists/* \
+    /tmp/* \
+    /var/tmp/*
+
+# Compile and install libtorrent-rasterbar
 # Install Ninja
 RUN apt update \
     && apt upgrade -y \
@@ -58,7 +84,7 @@ RUN apt update \
     /tmp/* \
     /var/tmp/*
 
-# Compile libtorrent
+# Compile and install libtorrent-rasterbar
 RUN apt update \
     && apt upgrade -y \
     && apt install -y --no-install-recommends \
@@ -66,7 +92,6 @@ RUN apt update \
     ca-certificates \
     curl \
     jq \
-    libboost-system-dev \
     libssl-dev \
     && LIBTORRENT_ASSETS=$(curl -sX GET "https://api.github.com/repos/arvidn/libtorrent/releases" | jq '.[] | select(.prerelease==false) | select(.target_commitish=="RC_2_0") | .assets_url' | head -n 1 | tr -d '"') \
     && LIBTORRENT_DOWNLOAD_URL=$(curl -sX GET ${LIBTORRENT_ASSETS} | jq '.[0] .browser_download_url' | tr -d '"') \
@@ -85,7 +110,6 @@ RUN apt update \
     ca-certificates \
     curl \
     jq \
-    libboost-system-dev \
     libssl-dev \
     && apt-get clean \
     && apt autoremove -y \
@@ -94,7 +118,7 @@ RUN apt update \
     /tmp/* \
     /var/tmp/*
 
-# Compile qBittorrent
+# Compile and install qBittorrent
 RUN apt update \
     && apt upgrade -y \
     && apt install -y --no-install-recommends \
@@ -102,7 +126,6 @@ RUN apt update \
     ca-certificates \
     curl \
     git \
-    libboost-system-dev \
     libssl-dev \
     pkg-config \
     qtbase5-dev \
@@ -120,7 +143,6 @@ RUN apt update \
     ca-certificates \
     curl \
     git \
-    libboost-system-dev \
     libssl-dev \
     pkg-config \
     qtbase5-dev \
@@ -133,6 +155,7 @@ RUN apt update \
     /tmp/* \
     /var/tmp/*
 
+# Install WireGuard and some other dependencies some of the scripts in the container rely on.
 RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable-wireguard.list \
     && printf 'Package: *\nPin: release a=unstable\nPin-Priority: 150\n' > /etc/apt/preferences.d/limit-unstable \
     && apt update \
@@ -143,7 +166,6 @@ RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.li
     ipcalc \
     iptables \
     kmod \
-    libboost-system1.67.0 \
     libqt5network5 \
     libqt5xml5 \
     libssl1.1 \
@@ -160,6 +182,7 @@ RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.li
     /tmp/* \
     /var/tmp/*
 
+# Install (un)compressing tools like unrar, 7z, unzip and zip
 RUN echo "deb http://deb.debian.org/debian/ buster non-free" > /etc/apt/sources.list.d/non-free-unrar.list \
     && printf 'Package: *\nPin: release a=non-free\nPin-Priority: 150\n' > /etc/apt/preferences.d/limit-non-free \
     && apt update \
