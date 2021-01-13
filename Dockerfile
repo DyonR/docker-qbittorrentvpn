@@ -18,8 +18,8 @@ RUN apt update \
     && NINJA_ASSETS=$(curl -sX GET "https://api.github.com/repos/ninja-build/ninja/releases" | jq '.[] | select(.prerelease==false) | .assets_url' | head -n 1 | tr -d '"') \
     && NINJA_DOWNLOAD_URL=$(curl -sX GET ${NINJA_ASSETS} | jq '.[] | select(.name | contains("ninja-linux")) .browser_download_url' | tr -d '"') \
     && curl -o /opt/ninja-linux.zip -L ${NINJA_DOWNLOAD_URL} \
-    && unzip /opt/ninja-linux.zip \
-    && mv ninja /usr/local/bin/ninja \
+    && unzip /opt/ninja-linux.zip -d /opt \
+    && mv /opt/ninja /usr/local/bin/ninja \
     && chmod +x /usr/local/bin/ninja \
     && rm -rf /opt/* \
     && apt purge -y \
@@ -68,7 +68,7 @@ RUN apt update \
     jq \
     libboost-system-dev \
     libssl-dev \
-    && LIBTORRENT_ASSETS=$(curl -sX GET "https://api.github.com/repos/arvidn/libtorrent/releases" | jq '.[] | select(.prerelease==false) | select(.target_commitish=="RC_1_2") | .assets_url' | head -n 1 | tr -d '"') \
+    && LIBTORRENT_ASSETS=$(curl -sX GET "https://api.github.com/repos/arvidn/libtorrent/releases" | jq '.[] | select(.prerelease==false) | select(.target_commitish=="RC_2_0") | .assets_url' | head -n 1 | tr -d '"') \
     && LIBTORRENT_DOWNLOAD_URL=$(curl -sX GET ${LIBTORRENT_ASSETS} | jq '.[0] .browser_download_url' | tr -d '"') \
     && LIBTORRENT_NAME=$(curl -sX GET ${LIBTORRENT_ASSETS} | jq '.[0] .name' | tr -d '"') \
     && curl -o /opt/${LIBTORRENT_NAME} -L ${LIBTORRENT_DOWNLOAD_URL} \
