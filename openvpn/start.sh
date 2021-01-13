@@ -21,14 +21,17 @@ else
 	export VPN_ENABLED="yes"
 fi
 
-export DISABLE_IPV6=$(echo "${DISABLE_IPV6,,}")
-echo "[INFO] DISABLE_IPV6 is set to '${DISABLE_IPV6}'" | ts '%Y-%m-%d %H:%M:%.S'
-if [[ $DISABLE_IPV6 == "1" || $DISABLE_IPV6 == "true" || $DISABLE_IPV6 == "yes" || $DISABLE_IPV6 == "" ]]; then
-	echo "[INFO] Disabling IPv6 in sysctl" | ts '%Y-%m-%d %H:%M:%.S'
-	sysctl -w net.ipv6.conf.all.disable_ipv6=1 > /dev/null 2>&1
+export LEGACY_IPTABLES=$(echo "${LEGACY_IPTABLES,,}")
+echo "[INFO] LEGACY_IPTABLES is set to '${LEGACY_IPTABLES}'" | ts '%Y-%m-%d %H:%M:%.S'
+if [[ $LEGACY_IPTABLES == "1" || $LEGACY_IPTABLES == "true" || $LEGACY_IPTABLES == "yes" ]]; then
+	echo "[INFO] Linking /usr/sbin/iptables-legacy to /usr/sbin/iptables" | ts '%Y-%m-%d %H:%M:%.S'
+	ln -sf /usr/sbin/iptables-legacy /usr/sbin/iptables > /dev/null 2>&1
+	#echo "[INFO] Linking /usr/sbin/iptables-legacy-save to /usr/sbin/iptables-save" | ts '%Y-%m-%d %H:%M:%.S'
+	#ln -sf /usr/sbin/iptables-legacy-save /usr/sbin/iptables-save > /dev/null 2>&1
+	#echo "[INFO] Linking /usr/sbin/iptables-legacy-restore to /usr/sbin/iptables-restore" | ts '%Y-%m-%d %H:%M:%.S'
+	#ln -sf /usr/sbin/iptables-legacy-restore /usr/sbin/iptables-restore > /dev/null 2>&1
 else
-	echo "[INFO] Enabling IPv6 in sysctl" | ts '%Y-%m-%d %H:%M:%.S'
-	sysctl -w net.ipv6.conf.all.disable_ipv6=0 > /dev/null 2>&1
+	echo "[INFO] Not making any changes to iptables" | ts '%Y-%m-%d %H:%M:%.S'
 fi
 
 if [[ $VPN_ENABLED == "yes" ]]; then
