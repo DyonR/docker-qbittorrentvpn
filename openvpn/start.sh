@@ -262,7 +262,7 @@ if [[ $VPN_ENABLED == "yes" ]]; then
 	if [[ "${VPN_TYPE}" == "openvpn" ]]; then
 		echo "[INFO] Starting OpenVPN..." | ts '%Y-%m-%d %H:%M:%.S'
 		cd /config/openvpn
-		exec openvpn --config "${VPN_CONFIG}" &
+		exec openvpn --pull-filter ignore route-ipv6 --pull-filter ignore ifconfig-ipv6 --config "${VPN_CONFIG}" &
 		#exec /bin/bash /etc/openvpn/openvpn.init start &
 	else
 		echo "[INFO] Starting WireGuard..." | ts '%Y-%m-%d %H:%M:%.S'

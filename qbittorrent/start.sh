@@ -39,36 +39,32 @@ if [[ ${ENABLE_SSL} == 'yes' ]]; then
 		openssl req -new -x509 -nodes -out /config/qBittorrent/config/WebUICertificate.crt -keyout /config/qBittorrent/config/WebUIKey.key -subj "/C=NL/ST=localhost/L=localhost/O=/OU=/CN="
 		chown -R ${PUID}:${PGID} /config/qBittorrent/config
 	fi
-	if grep -Fxq 'WebUI\HTTPS\CertificatePath=/config/qBittorrent/config/WebUICertificate.crt' "/config/qBittorrent/config/qBittorrent.conf" 
-		then
-			echo "[INFO] /config/qBittorrent/config/qBittorrent.conf already has the line WebUICertificate.crt loaded, nothing to do." | ts '%Y-%m-%d %H:%M:%.S'
-		else
-			echo "[WARNING] /config/qBittorrent/config/qBittorrent.conf doesn't have the WebUICertificate.crt loaded. Added it to the config." | ts '%Y-%m-%d %H:%M:%.S'
-			echo 'WebUI\HTTPS\CertificatePath=/config/qBittorrent/config/WebUICertificate.crt' >> "/config/qBittorrent/config/qBittorrent.conf"
+	if grep -Fxq 'WebUI\HTTPS\CertificatePath=/config/qBittorrent/config/WebUICertificate.crt' "/config/qBittorrent/config/qBittorrent.conf"; then
+		echo "[INFO] /config/qBittorrent/config/qBittorrent.conf already has the line WebUICertificate.crt loaded, nothing to do." | ts '%Y-%m-%d %H:%M:%.S'
+	else
+		echo "[WARNING] /config/qBittorrent/config/qBittorrent.conf doesn't have the WebUICertificate.crt loaded. Added it to the config." | ts '%Y-%m-%d %H:%M:%.S'
+		echo 'WebUI\HTTPS\CertificatePath=/config/qBittorrent/config/WebUICertificate.crt' >> "/config/qBittorrent/config/qBittorrent.conf"
 	fi
-	if grep -Fxq 'WebUI\HTTPS\KeyPath=/config/qBittorrent/config/WebUIKey.key' "/config/qBittorrent/config/qBittorrent.conf" 
-		then
-			echo "[INFO] /config/qBittorrent/config/qBittorrent.conf already has the line WebUIKey.key loaded, nothing to do." | ts '%Y-%m-%d %H:%M:%.S'
-		else
-			echo "[WARNING] /config/qBittorrent/config/qBittorrent.conf doesn't have the WebUIKey.key loaded. Added it to the config." | ts '%Y-%m-%d %H:%M:%.S'
-			echo 'WebUI\HTTPS\KeyPath=/config/qBittorrent/config/WebUIKey.key' >> "/config/qBittorrent/config/qBittorrent.conf"
+	if grep -Fxq 'WebUI\HTTPS\KeyPath=/config/qBittorrent/config/WebUIKey.key' "/config/qBittorrent/config/qBittorrent.conf"; then
+		echo "[INFO] /config/qBittorrent/config/qBittorrent.conf already has the line WebUIKey.key loaded, nothing to do." | ts '%Y-%m-%d %H:%M:%.S'
+	else
+		echo "[WARNING] /config/qBittorrent/config/qBittorrent.conf doesn't have the WebUIKey.key loaded. Added it to the config." | ts '%Y-%m-%d %H:%M:%.S'
+		echo 'WebUI\HTTPS\KeyPath=/config/qBittorrent/config/WebUIKey.key' >> "/config/qBittorrent/config/qBittorrent.conf"
 	fi
-	if grep -xq 'WebUI\\HTTPS\\Enabled=true\|WebUI\\HTTPS\\Enabled=false' "/config/qBittorrent/config/qBittorrent.conf"
-		then
-			if grep -xq 'WebUI\\HTTPS\\Enabled=false' "/config/qBittorrent/config/qBittorrent.conf"
-				then
-					echo "[WARNING] /config/qBittorrent/config/qBittorrent.conf does have the WebUI\HTTPS\Enabled set to false, changing it to true." | ts '%Y-%m-%d %H:%M:%.S'
-					sed -i 's/WebUI\\HTTPS\\Enabled=false/WebUI\\HTTPS\\Enabled=true/g' "/config/qBittorrent/config/qBittorrent.conf"
-				else
-					echo "[INFO] /config/qBittorrent/config/qBittorrent.conf does have the WebUI\HTTPS\Enabled already set to true." | ts '%Y-%m-%d %H:%M:%.S'
-			fi
+	if grep -xq 'WebUI\\HTTPS\\Enabled=true\|WebUI\\HTTPS\\Enabled=false' "/config/qBittorrent/config/qBittorrent.conf"; then
+		if grep -xq 'WebUI\\HTTPS\\Enabled=false' "/config/qBittorrent/config/qBittorrent.conf"; then
+			echo "[WARNING] /config/qBittorrent/config/qBittorrent.conf does have the WebUI\HTTPS\Enabled set to false, changing it to true." | ts '%Y-%m-%d %H:%M:%.S'
+			sed -i 's/WebUI\\HTTPS\\Enabled=false/WebUI\\HTTPS\\Enabled=true/g' "/config/qBittorrent/config/qBittorrent.conf"
 		else
-			echo "[WARNING] /config/qBittorrent/config/qBittorrent.conf doesn't have the WebUI\HTTPS\Enabled loaded. Added it to the config." | ts '%Y-%m-%d %H:%M:%.S'
-			echo 'WebUI\HTTPS\Enabled=true' >> "/config/qBittorrent/config/qBittorrent.conf"
+			echo "[INFO] /config/qBittorrent/config/qBittorrent.conf does have the WebUI\HTTPS\Enabled already set to true." | ts '%Y-%m-%d %H:%M:%.S'
 		fi
-		else
-			echo "[WARNING] ENABLE_SSL is set to ${ENABLE_SSL}, SSL is not enabled. This could cause issues with logging if other apps use the same Cookie name (SID)." | ts '%Y-%m-%d %H:%M:%.S'
-			echo "[WARNING] If you manage the SSL config yourself, you can ignore this." | ts '%Y-%m-%d %H:%M:%.S'
+	else
+		echo "[WARNING] /config/qBittorrent/config/qBittorrent.conf doesn't have the WebUI\HTTPS\Enabled loaded. Added it to the config." | ts '%Y-%m-%d %H:%M:%.S'
+		echo 'WebUI\HTTPS\Enabled=true' >> "/config/qBittorrent/config/qBittorrent.conf"
+	fi
+else
+	echo "[WARNING] ENABLE_SSL is set to ${ENABLE_SSL}, SSL is not enabled. This could cause issues with logging if other apps use the same Cookie name (SID)." | ts '%Y-%m-%d %H:%M:%.S'
+	echo "[WARNING] If you manage the SSL config yourself, you can ignore this." | ts '%Y-%m-%d %H:%M:%.S'
 fi
 
 # Check if the PGID exists, if not create the group with the name 'qbittorrent'
