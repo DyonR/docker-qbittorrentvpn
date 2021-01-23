@@ -11,12 +11,13 @@ Docker container which runs the latest [qBittorrent](https://github.com/qbittorr
 * Base: Debian 10-slim
 * [qBittorrent](https://github.com/qbittorrent/qBittorrent) compiled from source
 * [libtorrent](https://github.com/arvidn/libtorrent) compiled from source
+* Compiled with the latest version of [Boost](https://www.boost.org/)
+* Compiled with the latest versions of [CMake](https://cmake.org/)
 * Selectively enable or disable WireGuard or OpenVPN support
 * IP tables killswitch to prevent IP leaking when VPN connection fails
-* Specify name servers to add to container
-* Configure UID and GID for config files and /downloads for qBittorrent
+* Configurable UID and GID for config files and /downloads for qBittorrent
 * Created with [Unraid](https://unraid.net/) in mind
-* BitTorrent port 8999 by default
+* BitTorrent port 8999 exposed by default
 
 # Run container from Docker registry
 The container is available from the Docker registry and this is the simplest way to get it  
@@ -29,7 +30,6 @@ $ docker run --privileged  -d \
               -e "VPN_ENABLED=yes" \
               -e "VPN_TYPE=wireguard" \
               -e "LAN_NETWORK=192.168.0.0/24" \
-              -e "NAME_SERVERS=1.1.1.1,1.0.0.1" \
               -p 8080:8080 \
               --restart unless-stopped \
               dyonr/qbittorrentvpn
@@ -46,7 +46,6 @@ $ docker run --privileged  -d \
 |`LAN_NETWORK`| Yes (atleast one) | Comma delimited local Network's with CIDR notation |`LAN_NETWORK=192.168.0.0/24,10.10.0.0/24`||
 |`ENABLE_SSL`| No | Let the container handle SSL (yes/no)? |`ENABLE_SSL=yes`|`yes`|
 |`NAME_SERVERS`| No | Comma delimited name servers |`NAME_SERVERS=1.1.1.1,1.0.0.1`|`1.1.1.1,1.0.0.1`|
-|`LEGACY_IPTABLES`| No | Make use of iptables-legacy instead of nf_tables |`LEGACY_IPTABLES=true`|``|
 |`PUID`| No | UID applied to /config files and /downloads |`PUID=99`|`99`|
 |`PGID`| No | GID applied to /config files and /downloads  |`PGID=100`|`100`|
 |`UMASK`| No | |`UMASK=002`|`002`|
@@ -55,8 +54,6 @@ $ docker run --privileged  -d \
 |`HEALTH_CHECK_SILENT`| No |Set to `1` to supress the 'Network is up' message. Defaults to `1` if unset.|`HEALTH_CHECK_SILENT=1`|`1`|
 |`INSTALL_PYTHON3`| No |Set this to `yes` to let the container install Python3.|`INSTALL_PYTHON3=yes`|`no`|
 |`ADDITIONAL_PORTS`| No |Adding a comma delimited list of ports will allow these ports via the iptables script.|`ADDITIONAL_PORTS=1234,8112`||
-
-
 
 ## Volumes
 | Volume | Required | Function | Example |
@@ -72,7 +69,7 @@ $ docker run --privileged  -d \
 | `8999` | UDP | Yes | qBittorrent UDP Listening Port | `8999:8999/udp`|
 
 # Access the WebUI
-Access http://IPADDRESS:PORT from a browser on the same network. (for example: http://192.168.0.90:8080)
+Access https://IPADDRESS:PORT from a browser on the same network. (for example: https://192.168.0.90:8080)
 
 ## Default Credentials
 
@@ -114,4 +111,3 @@ Using the latest stable verison of Docker is always recommended. Support for old
 [MarkusMcNugen/docker-qBittorrentvpn](https://github.com/MarkusMcNugen/docker-qBittorrentvpn)  
 [DyonR/jackettvpn](https://github.com/DyonR/jackettvpn)  
 This projects originates from MarkusMcNugen/docker-qBittorrentvpn, but forking was not possible since DyonR/jackettvpn uses the fork already.
-
