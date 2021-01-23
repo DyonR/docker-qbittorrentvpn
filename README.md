@@ -105,15 +105,6 @@ User ID (PUID) and Group ID (PGID) can be found by issuing the following command
 id <username>
 ```
 
-## Known issue IPv6
-There is a known issue with VPN providers that support IPv6.  
-To workaround this issue, you need to add the folling lines to your .ovpn file:
-```
-pull-filter ignore 'route-ipv6'
-pull-filter ignore 'ifconfig-ipv6'
-```
-Thanks to [Technikte](https://github.com/Technikte) in [Issue #19](https://github.com/DyonR/docker-Jackettvpn/issues/19).
-
 # Issues
 If you are having issues with this container please submit an issue on GitHub.
 Please provide logs, docker version and other information that can simplify reproducing the issue.
