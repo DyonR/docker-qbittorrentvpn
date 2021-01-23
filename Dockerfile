@@ -7,6 +7,35 @@ RUN usermod -u 99 nobody
 # Make directories
 RUN mkdir -p /downloads /config/qBittorrent /etc/openvpn /etc/qbittorrent
 
+# Install boost
+RUN apt update \
+    && apt -y upgrade \
+    && apt -y install --no-install-recommends \
+    curl \
+    ca-certificates \
+    g++ \
+    libxml2-utils \
+    && BOOST_VERSION_DOT=$(curl -sX GET "https://www.boost.org/feed/news.rss" | xmllint --xpath '//rss/channel/item/title/text()' - | awk -F 'Version' '{print $2 FS}' - | sed -e 's/Version//g;s/\ //g' | awk 'NR==1{print $1}' -) \
+    && BOOST_VERSION=$(echo ${BOOST_VERSION_DOT} | head -n 1 | sed -e 's/\./_/g') \
+    && curl -o /opt/boost_${BOOST_VERSION}.tar.gz -L https://dl.bintray.com/boostorg/release/${BOOST_VERSION_DOT}/source/boost_${BOOST_VERSION}.tar.gz \
+    && tar -xzf /opt/boost_${BOOST_VERSION}.tar.gz -C /opt \
+    && cd /opt/boost_${BOOST_VERSION} \
+    && ./bootstrap.sh --prefix=/usr \
+    && ./b2 --prefix=/usr install \
+    && cd /opt \
+    && rm -rf /opt/* \
+    && apt -y purge \
+    curl \
+    ca-certificates \
+    g++ \
+    libxml2-utils \
+    && apt-get clean \
+    && apt -y autoremove \
+    && rm -rf \
+    /var/lib/apt/lists/* \
+    /tmp/* \
+    /var/tmp/*
+
 # Install Ninja
 RUN apt update \
     && apt upgrade -y \
@@ -66,9 +95,8 @@ RUN apt update \
     ca-certificates \
     curl \
     jq \
-    libboost-system-dev \
     libssl-dev \
-    && LIBTORRENT_ASSETS=$(curl -sX GET "https://api.github.com/repos/arvidn/libtorrent/releases" | jq '.[] | select(.prerelease==false) | select(.target_commitish=="RC_1_2") | .assets_url' | head -n 1 | tr -d '"') \
+    && LIBTORRENT_ASSETS=$(curl -sX GET "https://api.github.com/repos/arvidn/libtorrent/releases" | jq '.[] | select(.prerelease==false) | select(.target_commitish=="RC_2_0") | .assets_url' | head -n 1 | tr -d '"') \
     && LIBTORRENT_DOWNLOAD_URL=$(curl -sX GET ${LIBTORRENT_ASSETS} | jq '.[0] .browser_download_url' | tr -d '"') \
     && LIBTORRENT_NAME=$(curl -sX GET ${LIBTORRENT_ASSETS} | jq '.[0] .name' | tr -d '"') \
     && curl -o /opt/${LIBTORRENT_NAME} -L ${LIBTORRENT_DOWNLOAD_URL} \
@@ -85,7 +113,6 @@ RUN apt update \
     ca-certificates \
     curl \
     jq \
-    libboost-system-dev \
     libssl-dev \
     && apt-get clean \
     && apt autoremove -y \
@@ -103,7 +130,6 @@ RUN apt update \
     curl \
     git \
     jq \
-    libboost-system-dev \
     libssl-dev \
     pkg-config \
     qtbase5-dev \
@@ -125,7 +151,6 @@ RUN apt update \
     curl \
     git \
     jq \
-    libboost-system-dev \
     libssl-dev \
     pkg-config \
     qtbase5-dev \
@@ -149,7 +174,6 @@ RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.li
     ipcalc \
     iptables \
     kmod \
-    libboost-system1.67.0 \
     libqt5network5 \
     libqt5xml5 \
     libssl1.1 \
