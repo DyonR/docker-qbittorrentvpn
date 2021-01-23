@@ -7,16 +7,19 @@ RUN usermod -u 99 nobody
 # Make directories
 RUN mkdir -p /downloads /config/qBittorrent /etc/openvpn /etc/qbittorrent
 
-# Compile and install Boost
+# Install boost
 RUN apt update \
     && apt -y upgrade \
     && apt -y install --no-install-recommends \
     curl \
     ca-certificates \
     g++ \
-    && curl -o /opt/boost_1_75_0.tar.gz -L https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.tar.gz \
-    && tar -xzf boost_1_75_0.tar.gz \
-    && cd /opt/boost_1_75_0 \
+    libxml2-utils \
+    && BOOST_VERSION_DOT=$(curl -sX GET "https://www.boost.org/feed/news.rss" | xmllint --xpath '//rss/channel/item/title/text()' - | awk -F 'Version' '{print $2 FS}' - | sed -e 's/Version//g;s/\ //g' | awk 'NR==1{print $1}' -) \
+    && BOOST_VERSION=$(echo ${BOOST_VERSION_DOT} | head -n 1 | sed -e 's/\./_/g') \
+    && curl -o /opt/boost_${BOOST_VERSION}.tar.gz -L https://dl.bintray.com/boostorg/release/${BOOST_VERSION_DOT}/source/boost_${BOOST_VERSION}.tar.gz \
+    && tar -xzf /opt/boost_${BOOST_VERSION}.tar.gz -C /opt \
+    && cd /opt/boost_${BOOST_VERSION} \
     && ./bootstrap.sh --prefix=/usr \
     && ./b2 --prefix=/usr install \
     && cd /opt \
@@ -25,6 +28,7 @@ RUN apt update \
     curl \
     ca-certificates \
     g++ \
+    libxml2-utils \
     && apt-get clean \
     && apt -y autoremove \
     && rm -rf \
@@ -32,7 +36,6 @@ RUN apt update \
     /tmp/* \
     /var/tmp/*
 
-# Compile and install libtorrent-rasterbar
 # Install Ninja
 RUN apt update \
     && apt upgrade -y \

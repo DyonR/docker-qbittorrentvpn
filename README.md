@@ -11,12 +11,13 @@ Docker container which runs the latest [qBittorrent](https://github.com/qbittorr
 * Base: Debian 10-slim
 * [qBittorrent](https://github.com/qbittorrent/qBittorrent) compiled from source
 * [libtorrent](https://github.com/arvidn/libtorrent) compiled from source
+* Compiled with the latest version of [Boost](https://www.boost.org/)
+* Compiled with the latest versions of [CMake](https://cmake.org/)
 * Selectively enable or disable WireGuard or OpenVPN support
 * IP tables killswitch to prevent IP leaking when VPN connection fails
-* Specify name servers to add to container
-* Configure UID and GID for config files and /downloads for qBittorrent
+* Configurable UID and GID for config files and /downloads for qBittorrent
 * Created with [Unraid](https://unraid.net/) in mind
-* BitTorrent port 8999 by default
+* BitTorrent port 8999 exposed by default
 
 # Run container from Docker registry
 The container is available from the Docker registry and this is the simplest way to get it  
@@ -29,7 +30,6 @@ $ docker run --privileged  -d \
               -e "VPN_ENABLED=yes" \
               -e "VPN_TYPE=wireguard" \
               -e "LAN_NETWORK=192.168.0.0/24" \
-              -e "NAME_SERVERS=1.1.1.1,1.0.0.1" \
               -p 8080:8080 \
               --restart unless-stopped \
               dyonr/qbittorrentvpn
@@ -52,12 +52,8 @@ $ docker run --privileged  -d \
 |`HEALTH_CHECK_HOST`| No |This is the host or IP that the healthcheck script will use to check an active connection|`HEALTH_CHECK_HOST=one.one.one.one`|`one.one.one.one`|
 |`HEALTH_CHECK_INTERVAL`| No |This is the time in seconds that the container waits to see if the internet connection still works (check if VPN died)|`HEALTH_CHECK_INTERVAL=300`|`300`|
 |`HEALTH_CHECK_SILENT`| No |Set to `1` to supress the 'Network is up' message. Defaults to `1` if unset.|`HEALTH_CHECK_SILENT=1`|`1`|
-|`DISABLE_IPV6`\*| No |Setting the value of this to `0` will **enable** IPv6 in sysctl. `1` will disable IPv6 in sysctl.|`DISABLE_IPV6=1`|`1`|
 |`INSTALL_PYTHON3`| No |Set this to `yes` to let the container install Python3.|`INSTALL_PYTHON3=yes`|`no`|
 |`ADDITIONAL_PORTS`| No |Adding a comma delimited list of ports will allow these ports via the iptables script.|`ADDITIONAL_PORTS=1234,8112`||
-
-\*This option was initially added as a way to fix problems with VPN providers that support IPv6 and might not work at all. I am unable to test this since my VPN provider does not support IPv6, nor I have an IPv6 connection.
-
 
 ## Volumes
 | Volume | Required | Function | Example |
@@ -73,7 +69,7 @@ $ docker run --privileged  -d \
 | `8999` | UDP | Yes | qBittorrent UDP Listening Port | `8999:8999/udp`|
 
 # Access the WebUI
-Access http://IPADDRESS:PORT from a browser on the same network. (for example: http://192.168.0.90:8080)
+Access https://IPADDRESS:PORT from a browser on the same network. (for example: https://192.168.0.90:8080)
 
 ## Default Credentials
 
@@ -106,15 +102,6 @@ User ID (PUID) and Group ID (PGID) can be found by issuing the following command
 id <username>
 ```
 
-## Known issue IPv6
-There is a known issue with VPN providers that support IPv6.  
-To workaround this issue, you need to add the folling lines to your .ovpn file:
-```
-pull-filter ignore 'route-ipv6'
-pull-filter ignore 'ifconfig-ipv6'
-```
-Thanks to [Technikte](https://github.com/Technikte) in [Issue #19](https://github.com/DyonR/docker-Jackettvpn/issues/19).
-
 # Issues
 If you are having issues with this container please submit an issue on GitHub.
 Please provide logs, docker version and other information that can simplify reproducing the issue.
@@ -124,4 +111,3 @@ Using the latest stable verison of Docker is always recommended. Support for old
 [MarkusMcNugen/docker-qBittorrentvpn](https://github.com/MarkusMcNugen/docker-qBittorrentvpn)  
 [DyonR/jackettvpn](https://github.com/DyonR/jackettvpn)  
 This projects originates from MarkusMcNugen/docker-qBittorrentvpn, but forking was not possible since DyonR/jackettvpn uses the fork already.
-
