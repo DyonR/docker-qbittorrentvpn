@@ -103,11 +103,11 @@ id <username>
 ```
 
 # Issues
-If you are having issues with this container please submit an issue on GitHub.
-Please provide logs, Docker version and other information that can simplify reproducing the issue.
+If you are having issues with this container please submit an issue on GitHub.  
+Please provide logs, Docker version and other information that can simplify reproducing the issue.  
 If possible, always use the most up to date version of Docker, you operating system, kernel and the container itself. Support is always a best-effort basis.
 
-### Credits:  
+### Credits:
 [MarkusMcNugen/docker-qBittorrentvpn](https://github.com/MarkusMcNugen/docker-qBittorrentvpn)  
 [DyonR/jackettvpn](https://github.com/DyonR/jackettvpn)  
 This projects originates from MarkusMcNugen/docker-qBittorrentvpn, but forking was not possible since DyonR/jackettvpn uses the fork already.
