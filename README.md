@@ -7,7 +7,7 @@ Docker container which runs the latest [qBittorrent](https://github.com/qbittorr
 [preview]: https://raw.githubusercontent.com/DyonR/docker-templates/master/Screenshots/qbittorrentvpn/qbittorrentvpn-webui.png "qBittorrent WebUI"
 ![alt text][preview]
 
-## Docker Features
+# Docker Features
 * Base: Debian 10-slim
 * [qBittorrent](https://github.com/qbittorrent/qBittorrent) compiled from source
 * [libtorrent](https://github.com/arvidn/libtorrent) compiled from source
@@ -19,7 +19,7 @@ Docker container which runs the latest [qBittorrent](https://github.com/qbittorr
 * Created with [Unraid](https://unraid.net/) in mind
 * BitTorrent port 8999 exposed by default
 
-# Run container from Docker registry
+## Run container from Docker registry
 The container is available from the Docker registry and this is the simplest way to get it  
 To run the container use this command, with additional parameters, please refer to the Variables, Volumes, and Ports section:
 
@@ -34,6 +34,16 @@ $ docker run --privileged  -d \
               --restart unless-stopped \
               dyonr/qbittorrentvpn
 ```
+
+## Docker Tags
+| Tag | Description |
+|----------|----------|
+| `dyonr/qbittorrentvpn:latest` | The latest version of qBittorrent with libtorrent 1_x_x |
+| `dyonr/qbittorrentvpn:rc_2_0` | The latest version of qBittorrent with libtorrent 2_x_x |
+| `dyonr/qbittorrentvpn:legacy_iptables` | The latest version of qBittorrent, libtorrent 1_x_x and an experimental feature to fix problems with QNAP NAS systems, [Issue #25](https://github.com/DyonR/docker-qbittorrentvpn/issues/25) |
+| `dyonr/qbittorrentvpn:alpha` | The latest alpha version of qBittorrent with libtorrent 2_0, incase you feel like testing new features |
+| `dyonr/qbittorrentvpn:dev` | This branch is used for testing new Docker features or improvements before merging it to the main branch |
+| `dyonr/qbittorrentvpn:v4_2_x` | (Legacy) qBittorrent version 4.2.x with libtorrent 1_x_x |
 
 # Variables, Volumes, and Ports
 ## Environment Variables
