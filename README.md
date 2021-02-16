@@ -7,7 +7,7 @@ Docker container which runs the latest [qBittorrent](https://github.com/qbittorr
 [preview]: https://raw.githubusercontent.com/DyonR/docker-templates/master/Screenshots/qbittorrentvpn/qbittorrentvpn-webui.png "qBittorrent WebUI"
 ![alt text][preview]
 
-## Docker Features
+# Docker Features
 * Base: Debian 10-slim
 * [qBittorrent](https://github.com/qbittorrent/qBittorrent) compiled from source
 * [libtorrent](https://github.com/arvidn/libtorrent) compiled from source
@@ -19,7 +19,7 @@ Docker container which runs the latest [qBittorrent](https://github.com/qbittorr
 * Created with [Unraid](https://unraid.net/) in mind
 * BitTorrent port 8999 exposed by default
 
-# Run container from Docker registry
+## Run container from Docker registry
 The container is available from the Docker registry and this is the simplest way to get it  
 To run the container use this command, with additional parameters, please refer to the Variables, Volumes, and Ports section:
 
@@ -35,7 +35,7 @@ $ docker run --privileged  -d \
               dyonr/qbittorrentvpn
 ```
 
-# Docker Tags
+## Docker Tags
 | Tag | Description |
 |----------|----------|
 | `dyonr/qbittorrentvpn:latest` | The latest version of qBittorrent with libtorrent 1_x_x |
