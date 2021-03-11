@@ -71,7 +71,7 @@ RUN apt update \
     curl \
     jq \
     && CMAKE_ASSETS=$(curl -sX GET "https://api.github.com/repos/Kitware/CMake/releases" | jq '.[] | select(.prerelease==false) | .assets_url' | head -n 1 | tr -d '"') \
-    && CMAKE_DOWNLOAD_URL=$(curl -sX GET ${CMAKE_ASSETS} | jq '.[] | select(.name | contains("Linux-x86_64.sh")) .browser_download_url' | tr -d '"') \
+    && CMAKE_DOWNLOAD_URL=$(curl -sX GET ${CMAKE_ASSETS} | jq '.[] | select(.name | match("Linux-x86_64.sh";"i")) .browser_download_url' | tr -d '"') \
     && curl -o /opt/cmake.sh -L ${CMAKE_DOWNLOAD_URL} \
     && chmod +x /opt/cmake.sh \
     && /bin/bash /opt/cmake.sh --skip-license --prefix=/usr \
