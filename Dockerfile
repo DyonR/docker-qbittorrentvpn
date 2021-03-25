@@ -1,7 +1,5 @@
 FROM ubuntu:20.04
 
-ENV DEBIAN_FRONTEND noninteractive
-
 WORKDIR /opt
 
 RUN usermod -u 99 nobody
