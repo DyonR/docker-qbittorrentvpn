@@ -1,4 +1,4 @@
-FROM debian:10-slim
+FROM ubuntu:20.04
 
 WORKDIR /opt
 
@@ -9,8 +9,8 @@ RUN mkdir -p /downloads /config/qBittorrent /etc/openvpn /etc/qbittorrent
 
 # Install boost
 RUN apt update \
-    && apt -y upgrade \
-    && apt -y install --no-install-recommends \
+    && apt upgrade -y \
+    && apt install -y --no-install-recommends \
     curl \
     ca-certificates \
     g++ \
@@ -24,13 +24,13 @@ RUN apt update \
     && ./b2 --prefix=/usr install \
     && cd /opt \
     && rm -rf /opt/* \
-    && apt -y purge \
+    && apt purge -y \
     curl \
     ca-certificates \
     g++ \
     libxml2-utils \
     && apt-get clean \
-    && apt -y autoremove \
+    && apt autoremove -y --purge \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
@@ -45,7 +45,7 @@ RUN apt update \
     jq \
     unzip \
     && NINJA_ASSETS=$(curl -sX GET "https://api.github.com/repos/ninja-build/ninja/releases" | jq '.[] | select(.prerelease==false) | .assets_url' | head -n 1 | tr -d '"') \
-    && NINJA_DOWNLOAD_URL=$(curl -sX GET ${NINJA_ASSETS} | jq '.[] | select(.name | contains("ninja-linux")) .browser_download_url' | tr -d '"') \
+    && NINJA_DOWNLOAD_URL=$(curl -sX GET ${NINJA_ASSETS} | jq '.[] | select(.name | match("ninja-linux";"i")) .browser_download_url' | tr -d '"') \
     && curl -o /opt/ninja-linux.zip -L ${NINJA_DOWNLOAD_URL} \
     && unzip /opt/ninja-linux.zip -d /opt \
     && mv /opt/ninja /usr/local/bin/ninja \
@@ -57,7 +57,7 @@ RUN apt update \
     jq \
     unzip \
     && apt-get clean \
-    && apt autoremove -y \
+    && apt autoremove -y --purge \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
@@ -66,7 +66,7 @@ RUN apt update \
 # Install cmake
 RUN apt update \
     && apt upgrade -y \
-    && apt install -y  --no-install-recommends \
+    && apt install -y --no-install-recommends \
     ca-certificates \
     curl \
     jq \
@@ -81,7 +81,7 @@ RUN apt update \
     curl \
     jq \
     && apt-get clean \
-    && apt autoremove -y \
+    && apt autoremove -y --purge \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
@@ -115,7 +115,7 @@ RUN apt update \
     jq \
     libssl-dev \
     && apt-get clean \
-    && apt autoremove -y \
+    && apt autoremove -y --purge \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
@@ -152,7 +152,7 @@ RUN apt update \
     qttools5-dev \
     zlib1g-dev \
     && apt-get clean \
-    && apt autoremove -y \
+    && apt autoremove -y --purge \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
@@ -179,7 +179,7 @@ RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.li
     procps \
     wireguard-tools \
     && apt-get clean \
-    && apt autoremove -y \
+    && apt autoremove -y --purge \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
@@ -190,13 +190,13 @@ RUN echo "deb http://deb.debian.org/debian/ buster non-free" > /etc/apt/sources.
     && printf 'Package: *\nPin: release a=non-free\nPin-Priority: 150\n' > /etc/apt/preferences.d/limit-non-free \
     && apt update \
     && apt -y upgrade \
-    && apt -y install --no-install-recommends \
+    && apt install -y --no-install-recommends \
     unrar \
     p7zip-full \
     unzip \
     zip \
     && apt-get clean \
-    && apt -y autoremove \
+    && apt autoremove -y --purge \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
