@@ -18,7 +18,7 @@ RUN apt update \
     libxml2-utils \
     && BOOST_VERSION_DOT=$(curl -sX GET "https://www.boost.org/feed/news.rss" | xmllint --xpath '//rss/channel/item/title/text()' - | awk -F 'Version' '{print $2 FS}' - | sed -e 's/Version//g;s/\ //g' | awk 'NR==1{print $1}' -) \
     && BOOST_VERSION=$(echo ${BOOST_VERSION_DOT} | head -n 1 | sed -e 's/\./_/g') \
-    && curl -o /opt/boost_${BOOST_VERSION}.tar.gz -L https://dl.bintray.com/boostorg/release/${BOOST_VERSION_DOT}/source/boost_${BOOST_VERSION}.tar.gz \
+    && curl -o /opt/boost_${BOOST_VERSION}.tar.gz -L https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION_DOT}/source/boost_${BOOST_VERSION}.tar.gz \
     && tar -xzf /opt/boost_${BOOST_VERSION}.tar.gz -C /opt \
     && cd /opt/boost_${BOOST_VERSION} \
     && ./bootstrap.sh --prefix=/usr \
