@@ -170,6 +170,7 @@ RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.li
     iptables \
     kmod \
     libqt5network5 \
+    libqt5sql5 \
     libqt5xml5 \
     libssl1.1 \
     moreutils \
