@@ -21,18 +21,18 @@ else
 	export VPN_ENABLED="yes"
 fi
 
-# export LEGACY_IPTABLES=$(echo "${LEGACY_IPTABLES,,}")
-# echo "[INFO] LEGACY_IPTABLES is set to '${LEGACY_IPTABLES}'" | ts '%Y-%m-%d %H:%M:%.S'
-# if [[ $LEGACY_IPTABLES == "1" || $LEGACY_IPTABLES == "true" || $LEGACY_IPTABLES == "yes" ]]; then
-#	echo "[INFO] Linking /usr/sbin/iptables-legacy to /usr/sbin/iptables" | ts '%Y-%m-%d %H:%M:%.S'
-#	ln -sf /usr/sbin/iptables-legacy /usr/sbin/iptables > /dev/null 2>&1
-#	echo "[INFO] Linking /usr/sbin/iptables-legacy-save to /usr/sbin/iptables-save" | ts '%Y-%m-%d %H:%M:%.S'
-#	ln -sf /usr/sbin/iptables-legacy-save /usr/sbin/iptables-save > /dev/null 2>&1
-#	echo "[INFO] Linking /usr/sbin/iptables-legacy-restore to /usr/sbin/iptables-restore" | ts '%Y-%m-%d %H:%M:%.S'
-#	ln -sf /usr/sbin/iptables-legacy-restore /usr/sbin/iptables-restore > /dev/null 2>&1
-# else
-#	echo "[INFO] Not making any changes to iptables" | ts '%Y-%m-%d %H:%M:%.S'
-# fi
+ export LEGACY_IPTABLES=$(echo "${LEGACY_IPTABLES,,}")
+ iptables_version=$(iptables -V)
+ echo "[INFO] The container is currently running ${iptables_version}."  | ts '%Y-%m-%d %H:%M:%.S'
+ echo "[INFO] LEGACY_IPTABLES is set to '${LEGACY_IPTABLES}'" | ts '%Y-%m-%d %H:%M:%.S'
+ if [[ $LEGACY_IPTABLES == "1" || $LEGACY_IPTABLES == "true" || $LEGACY_IPTABLES == "yes" ]]; then
+	echo "[INFO] Setting iptables to iptables (legacy)" | ts '%Y-%m-%d %H:%M:%.S'
+	update-alternatives --set iptables /usr/sbin/iptables-legacy
+	iptables_version=$(iptables -V)
+	echo "[INFO] The container is now running ${iptables_version}." | ts '%Y-%m-%d %H:%M:%.S'
+ else
+	echo "[INFO] Not making any changes to iptables version" | ts '%Y-%m-%d %H:%M:%.S'
+ fi
 
 if [[ $VPN_ENABLED == "yes" ]]; then
 	# Check if VPN_TYPE is set.

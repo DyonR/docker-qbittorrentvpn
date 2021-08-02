@@ -77,7 +77,7 @@ else
 fi
 
 # Check if the PUID exists, if not create the user with the name 'qbittorrent', with the correct group
-grep $"${PUID}:" /etc/passwd > /dev/null 2>&1
+id ${PUID} > /dev/null 2>&1
 if [ $? -eq 0 ]; then
 	echo "[INFO] An user with PUID $PUID already exists in /etc/passwd, nothing to do." | ts '%Y-%m-%d %H:%M:%.S'
 else
