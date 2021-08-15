@@ -8,7 +8,7 @@ Docker container which runs the latest [qBittorrent](https://github.com/qbittorr
 ![alt text][preview]
 
 ## Docker Features
-* Base: Debian 10-slim
+* Base: Debian bullseye-slim
 * [qBittorrent](https://github.com/qbittorrent/qBittorrent) compiled from source
 * [libtorrent](https://github.com/arvidn/libtorrent) compiled from source
 * Compiled with the latest version of [Boost](https://www.boost.org/)
