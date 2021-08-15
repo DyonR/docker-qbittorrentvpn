@@ -187,7 +187,7 @@ RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.li
     /var/tmp/*
 
 # Install (un)compressing tools like unrar, 7z, unzip and zip
-RUN echo "deb http://deb.debian.org/debian/ buster non-free" > /etc/apt/sources.list.d/non-free-unrar.list \
+RUN echo "deb http://deb.debian.org/debian/ bullseye non-free" > /etc/apt/sources.list.d/non-free-unrar.list \
     && printf 'Package: *\nPin: release a=non-free\nPin-Priority: 150\n' > /etc/apt/preferences.d/limit-non-free \
     && apt update \
     && apt -y upgrade \
