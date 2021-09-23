@@ -18,13 +18,14 @@ if [ ! -e /config/qBittorrent/config/qBittorrent.conf ]; then
 fi
 
 export INSTALL_PYTHON3=$(echo "${INSTALL_PYTHON3,,}")
-if [[ $INSTALL_PYTHON3 == "yes" ]]; then
+if [[ $INSTALL_PYTHON3 == "1" || $INSTALL_PYTHON3 == "true" || $INSTALL_PYTHON3 == "yes" ]]; then
 	/bin/bash /etc/qbittorrent/install-python3.sh
 fi
 
 # The mess down here checks if SSL is enabled.
 export ENABLE_SSL=$(echo "${ENABLE_SSL,,}")
-if [[ ${ENABLE_SSL} == 'yes' ]]; then
+
+if [[ ${ENABLE_SSL} == "1" || ${ENABLE_SSL} == "true" || ${ENABLE_SSL} == "yes" ]]; then
 	echo "[INFO] ENABLE_SSL is set to ${ENABLE_SSL}" | ts '%Y-%m-%d %H:%M:%.S'
 	if [[ ${HOST_OS,,} == 'unraid' ]]; then
 		echo "[SYSTEM] If you use Unraid, and get something like a 'ERR_EMPTY_RESPONSE' in your browser, add https:// to the front of the IP, and/or do this:" | ts '%Y-%m-%d %H:%M:%.S'
@@ -142,7 +143,7 @@ if [ -e /proc/$qbittorrentpid ]; then
 			echo "[ERROR] Network is down, exiting this Docker" | ts '%Y-%m-%d %H:%M:%.S'
 			exit 1
 		fi
-		if [ ! "${HEALTH_CHECK_SILENT}" -eq 1 ]; then
+		if [[ ! "${HEALTH_CHECK_SILENT}" == "1" || ! "${HEALTH_CHECK_SILENT}" == "true" || ! "${HEALTH_CHECK_SILENT}" == "yes" ]]; then
 			echo "[INFO] Network is up" | ts '%Y-%m-%d %H:%M:%.S'
 		fi
 		sleep ${INTERVAL}

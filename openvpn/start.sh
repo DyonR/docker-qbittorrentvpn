@@ -34,7 +34,7 @@ fi
 	echo "[INFO] Not making any changes to iptables version" | ts '%Y-%m-%d %H:%M:%.S'
  fi
 
-if [[ $VPN_ENABLED == "yes" ]]; then
+if [[ $VPN_ENABLED == "1" || $VPN_ENABLED == "true" || $VPN_ENABLED == "yes" ]]; then
 	# Check if VPN_TYPE is set.
 	if [[ -z "${VPN_TYPE}" ]]; then
 		echo "[WARNING] VPN_TYPE not set, defaulting to OpenVPN." | ts '%Y-%m-%d %H:%M:%.S'
@@ -231,7 +231,7 @@ if [[ $VPN_ENABLED == "yes" ]]; then
 		fi
 	fi
 
-elif [[ $VPN_ENABLED == "no" ]]; then
+else
 	echo "[WARNING] !!IMPORTANT!! You have set the VPN to disabled, your connection will NOT be secure!" | ts '%Y-%m-%d %H:%M:%.S'
 fi
 
