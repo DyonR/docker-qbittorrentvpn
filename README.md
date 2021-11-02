@@ -24,13 +24,15 @@ The container is available from the Docker registry and this is the simplest way
 To run the container use this command, with additional parameters, please refer to the Variables, Volumes, and Ports section:
 
 ```
-$ docker run --privileged  -d \
+$ docker run  -d \
               -v /your/config/path/:/config \
               -v /your/downloads/path/:/downloads \
               -e "VPN_ENABLED=yes" \
               -e "VPN_TYPE=wireguard" \
               -e "LAN_NETWORK=192.168.0.0/24" \
               -p 8080:8080 \
+              --cap-add NET_ADMIN \
+              --sysctl "net.ipv4.conf.all.src_valid_mark=1" \
               --restart unless-stopped \
               dyonr/qbittorrentvpn
 ```
