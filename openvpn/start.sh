@@ -13,7 +13,7 @@ if [[ ! -z "${check_network}" ]]; then
 	exit 1
 fi
 
-export VPN_ENABLED=$(echo "${VPN_ENABLED}" | sed -e 's~^[ \t]*~~;s~[ \t]*$~~')
+export VPN_ENABLED=$(echo "${VPN_ENABLED,,}" | sed -e 's~^[ \t]*~~;s~[ \t]*$~~')
 if [[ ! -z "${VPN_ENABLED}" ]]; then
 	echo "[INFO] VPN_ENABLED defined as '${VPN_ENABLED}'" | ts '%Y-%m-%d %H:%M:%.S'
 else
@@ -21,20 +21,20 @@ else
 	export VPN_ENABLED="yes"
 fi
 
-# export LEGACY_IPTABLES=$(echo "${LEGACY_IPTABLES,,}")
-# echo "[INFO] LEGACY_IPTABLES is set to '${LEGACY_IPTABLES}'" | ts '%Y-%m-%d %H:%M:%.S'
-# if [[ $LEGACY_IPTABLES == "1" || $LEGACY_IPTABLES == "true" || $LEGACY_IPTABLES == "yes" ]]; then
-#	echo "[INFO] Linking /usr/sbin/iptables-legacy to /usr/sbin/iptables" | ts '%Y-%m-%d %H:%M:%.S'
-#	ln -sf /usr/sbin/iptables-legacy /usr/sbin/iptables > /dev/null 2>&1
-#	echo "[INFO] Linking /usr/sbin/iptables-legacy-save to /usr/sbin/iptables-save" | ts '%Y-%m-%d %H:%M:%.S'
-#	ln -sf /usr/sbin/iptables-legacy-save /usr/sbin/iptables-save > /dev/null 2>&1
-#	echo "[INFO] Linking /usr/sbin/iptables-legacy-restore to /usr/sbin/iptables-restore" | ts '%Y-%m-%d %H:%M:%.S'
-#	ln -sf /usr/sbin/iptables-legacy-restore /usr/sbin/iptables-restore > /dev/null 2>&1
-# else
-#	echo "[INFO] Not making any changes to iptables" | ts '%Y-%m-%d %H:%M:%.S'
-# fi
+export LEGACY_IPTABLES=$(echo "${LEGACY_IPTABLES,,}")
+iptables_version=$(iptables -V)
+echo "[INFO] The container is currently running ${iptables_version}."  | ts '%Y-%m-%d %H:%M:%.S'
+echo "[INFO] LEGACY_IPTABLES is set to '${LEGACY_IPTABLES}'" | ts '%Y-%m-%d %H:%M:%.S'
+if [[ $LEGACY_IPTABLES == "1" || $LEGACY_IPTABLES == "true" || $LEGACY_IPTABLES == "yes" ]]; then
+	echo "[INFO] Setting iptables to iptables (legacy)" | ts '%Y-%m-%d %H:%M:%.S'
+	update-alternatives --set iptables /usr/sbin/iptables-legacy
+	iptables_version=$(iptables -V)
+	echo "[INFO] The container is now running ${iptables_version}." | ts '%Y-%m-%d %H:%M:%.S'
+else
+	echo "[INFO] Not making any changes to iptables version" | ts '%Y-%m-%d %H:%M:%.S'
+fi
 
-if [[ $VPN_ENABLED == "yes" ]]; then
+if [[ $VPN_ENABLED == "1" || $VPN_ENABLED == "true" || $VPN_ENABLED == "yes" ]]; then
 	# Check if VPN_TYPE is set.
 	if [[ -z "${VPN_TYPE}" ]]; then
 		echo "[WARNING] VPN_TYPE not set, defaulting to OpenVPN." | ts '%Y-%m-%d %H:%M:%.S'
@@ -231,7 +231,7 @@ if [[ $VPN_ENABLED == "yes" ]]; then
 		fi
 	fi
 
-elif [[ $VPN_ENABLED == "no" ]]; then
+else
 	echo "[WARNING] !!IMPORTANT!! You have set the VPN to disabled, your connection will NOT be secure!" | ts '%Y-%m-%d %H:%M:%.S'
 fi
 
