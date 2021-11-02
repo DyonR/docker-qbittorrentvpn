@@ -24,13 +24,15 @@ The container is available from the Docker registry and this is the simplest way
 To run the container use this command, with additional parameters, please refer to the Variables, Volumes, and Ports section:
 
 ```
-$ docker run --privileged  -d \
+$ docker run  -d \
               -v /your/config/path/:/config \
               -v /your/downloads/path/:/downloads \
               -e "VPN_ENABLED=yes" \
               -e "VPN_TYPE=wireguard" \
               -e "LAN_NETWORK=192.168.0.0/24" \
               -p 8080:8080 \
+              --cap-add NET_ADMIN \
+              --sysctl "net.ipv4.conf.all.src_valid_mark=1" \
               --restart unless-stopped \
               dyonr/qbittorrentvpn
 ```
@@ -54,6 +56,7 @@ $ docker run --privileged  -d \
 |`VPN_USERNAME`| No | If username and password provided, configures ovpn file automatically |`VPN_USERNAME=ad8f64c02a2de`||
 |`VPN_PASSWORD`| No | If username and password provided, configures ovpn file automatically |`VPN_PASSWORD=ac98df79ed7fb`||
 |`LAN_NETWORK`| Yes (atleast one) | Comma delimited local Network's with CIDR notation |`LAN_NETWORK=192.168.0.0/24,10.10.0.0/24`||
+|`LEGACY_IPTABLES`| No | Use `iptables (legacy)` instead of `iptables (nf_tables)` |`LEGACY_IPTABLES=yes`||
 |`ENABLE_SSL`| No | Let the container handle SSL (yes/no)? |`ENABLE_SSL=yes`|`yes`|
 |`NAME_SERVERS`| No | Comma delimited name servers |`NAME_SERVERS=1.1.1.1,1.0.0.1`|`1.1.1.1,1.0.0.1`|
 |`PUID`| No | UID applied to /config files and /downloads |`PUID=99`|`99`|

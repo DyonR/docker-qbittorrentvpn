@@ -136,7 +136,7 @@ RUN apt update \
     qtbase5-dev \
     qttools5-dev \
     zlib1g-dev \
-    && QBITTORRENT_RELEASE=$(curl -sX GET "https://api.github.com/repos/qBittorrent/qBittorrent/tags" | jq '.[] | select(.name | index ("beta") | not) | .name' | head -n 1 | tr -d '"') \
+    && QBITTORRENT_RELEASE=$(curl -sX GET "https://api.github.com/repos/qBittorrent/qBittorrent/tags" | jq '.[] | select(.name | index ("beta") | not) | select(.name | index ("rc") | not) | .name' | head -n 1 | tr -d '"') \
     && curl -o /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz -L "https://github.com/qbittorrent/qBittorrent/archive/${QBITTORRENT_RELEASE}.tar.gz" \
     && tar -xzf /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz \
     && rm /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz \
@@ -177,6 +177,7 @@ RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.li
     kmod \
     libqt5network5 \
     libqt5xml5 \
+    libqt5sql5 \
     libssl1.1 \
     moreutils \
     net-tools \
@@ -207,6 +208,9 @@ RUN echo "deb http://deb.debian.org/debian/ buster non-free" > /etc/apt/sources.
     /var/lib/apt/lists/* \
     /tmp/* \
     /var/tmp/*
+
+# Remove src_valid_mark from wg-quick
+RUN sed -i /net\.ipv4\.conf\.all\.src_valid_mark/d `which wg-quick`
 
 VOLUME /config /downloads
 
