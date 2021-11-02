@@ -1,3 +1,4 @@
+# qBittorrent, OpenVPN and WireGuard, qbittorrentvpn
 FROM debian:bullseye-slim
 
 WORKDIR /opt
@@ -193,6 +194,9 @@ RUN echo "deb http://deb.debian.org/debian/ bullseye non-free" > /etc/apt/source
     /var/lib/apt/lists/* \
     /tmp/* \
     /var/tmp/*
+
+# Remove src_valid_mark from wg-quick
+RUN sed -i /net\.ipv4\.conf\.all\.src_valid_mark/d `which wg-quick`
 
 VOLUME /config /downloads
 
