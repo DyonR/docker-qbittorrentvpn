@@ -31,7 +31,7 @@ RUN apt update \
     g++ \
     libxml2-utils \
     && apt-get clean \
-    && apt autoremove -y --prune \
+    && apt --purge autoremove -y \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
@@ -58,7 +58,7 @@ RUN apt update \
     jq \
     unzip \
     && apt-get clean \
-    && apt autoremove -y --prune \
+    && apt --purge autoremove -y \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
@@ -82,7 +82,7 @@ RUN apt update \
     curl \
     jq \
     && apt-get clean \
-    && apt autoremove -y --prune \
+    && apt --purge autoremove -y \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
@@ -116,7 +116,7 @@ RUN apt update \
     jq \
     libssl-dev \
     && apt-get clean \
-    && apt autoremove -y --prune  \
+    && apt --purge autoremove -y  \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
@@ -158,7 +158,7 @@ RUN apt update \
     qttools5-dev \
     zlib1g-dev \
     && apt-get clean \
-    && apt autoremove -y --prune \
+    && apt --purge autoremove -y \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
@@ -186,7 +186,7 @@ RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.li
     procps \
     wireguard-tools \
     && apt-get clean \
-    && apt autoremove -y --prune \
+    && apt --purge autoremove -y \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
@@ -203,7 +203,7 @@ RUN echo "deb http://deb.debian.org/debian/ bullseye non-free" > /etc/apt/source
     unzip \
     zip \
     && apt-get clean \
-    && apt autoremove -y --prune \
+    && apt --purge autoremove -y \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \

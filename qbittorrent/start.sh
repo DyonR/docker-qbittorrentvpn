@@ -152,7 +152,7 @@ if [ -e /proc/$qbittorrentpid ]; then
 			echo "[ERROR] Network is down, exiting this Docker" | ts '%Y-%m-%d %H:%M:%.S'
 			exit 1
 		fi
-		if [[ ! "${HEALTH_CHECK_SILENT}" == "1" || ! "${HEALTH_CHECK_SILENT}" == "true" || ! "${HEALTH_CHECK_SILENT}" == "yes" ]]; then
+		if [ "${HEALTH_CHECK_SILENT}" == "0" ] || [ "${HEALTH_CHECK_SILENT}" == "false" ] || [ "${HEALTH_CHECK_SILENT}" == "no" ]; then
 			echo "[INFO] Network is up" | ts '%Y-%m-%d %H:%M:%.S'
 		fi
 		sleep ${INTERVAL} &
