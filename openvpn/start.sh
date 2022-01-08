@@ -22,17 +22,15 @@ else
 fi
 
 export LEGACY_IPTABLES=$(echo "${LEGACY_IPTABLES,,}")
-iptables_version=$(iptables -V)
-echo "[INFO] The container is currently running ${iptables_version}."  | ts '%Y-%m-%d %H:%M:%.S'
 echo "[INFO] LEGACY_IPTABLES is set to '${LEGACY_IPTABLES}'" | ts '%Y-%m-%d %H:%M:%.S'
 if [[ $LEGACY_IPTABLES == "1" || $LEGACY_IPTABLES == "true" || $LEGACY_IPTABLES == "yes" ]]; then
 	echo "[INFO] Setting iptables to iptables (legacy)" | ts '%Y-%m-%d %H:%M:%.S'
 	update-alternatives --set iptables /usr/sbin/iptables-legacy
-	iptables_version=$(iptables -V)
-	echo "[INFO] The container is now running ${iptables_version}." | ts '%Y-%m-%d %H:%M:%.S'
 else
 	echo "[INFO] Not making any changes to iptables version" | ts '%Y-%m-%d %H:%M:%.S'
 fi
+iptables_version=$(iptables -V)
+echo "[INFO] The container is currently running ${iptables_version}."  | ts '%Y-%m-%d %H:%M:%.S'
 
 if [[ $VPN_ENABLED == "1" || $VPN_ENABLED == "true" || $VPN_ENABLED == "yes" ]]; then
 	# Check if VPN_TYPE is set.

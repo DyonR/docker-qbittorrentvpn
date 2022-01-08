@@ -10,8 +10,8 @@ RUN mkdir -p /downloads /config/qBittorrent /etc/openvpn /etc/qbittorrent
 
 # Install boost
 RUN apt update \
-    && apt -y upgrade \
-    && apt -y install --no-install-recommends \
+    && apt upgrade -y  \
+    && apt install -y --no-install-recommends \
     curl \
     ca-certificates \
     g++ \
@@ -31,7 +31,7 @@ RUN apt update \
     g++ \
     libxml2-utils \
     && apt-get clean \
-    && apt -y autoremove \
+    && apt --purge autoremove -y \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
@@ -58,7 +58,7 @@ RUN apt update \
     jq \
     unzip \
     && apt-get clean \
-    && apt autoremove -y \
+    && apt --purge autoremove -y \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
@@ -82,7 +82,7 @@ RUN apt update \
     curl \
     jq \
     && apt-get clean \
-    && apt autoremove -y \
+    && apt --purge autoremove -y \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
@@ -116,7 +116,7 @@ RUN apt update \
     jq \
     libssl-dev \
     && apt-get clean \
-    && apt autoremove -y \
+    && apt --purge autoremove -y  \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
@@ -158,7 +158,7 @@ RUN apt update \
     qttools5-dev \
     zlib1g-dev \
     && apt-get clean \
-    && apt autoremove -y \
+    && apt --purge autoremove -y \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
@@ -186,14 +186,14 @@ RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.li
     procps \
     wireguard-tools \
     && apt-get clean \
-    && apt autoremove -y \
+    && apt --purge autoremove -y \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \
     /var/tmp/*
 
 # Install (un)compressing tools like unrar, 7z, unzip and zip
-RUN echo "deb http://deb.debian.org/debian/ buster non-free" > /etc/apt/sources.list.d/non-free-unrar.list \
+RUN echo "deb http://deb.debian.org/debian/ bullseye non-free" > /etc/apt/sources.list.d/non-free-unrar.list \
     && printf 'Package: *\nPin: release a=non-free\nPin-Priority: 150\n' > /etc/apt/preferences.d/limit-non-free \
     && apt update \
     && apt -y upgrade \
@@ -203,7 +203,7 @@ RUN echo "deb http://deb.debian.org/debian/ buster non-free" > /etc/apt/sources.
     unzip \
     zip \
     && apt-get clean \
-    && apt -y autoremove \
+    && apt --purge autoremove -y \
     && rm -rf \
     /var/lib/apt/lists/* \
     /tmp/* \

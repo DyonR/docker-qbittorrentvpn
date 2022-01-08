@@ -7,7 +7,7 @@ fi
 chown -R ${PUID}:${PGID} /config/qBittorrent
 
 # Set the rights on the /downloads folder
-chown -R ${PUID}:${PGID} /downloads
+find /downloads -not -user ${PUID} -execdir chown ${PUID}:${PGID} {} \+
 
 # Check if qBittorrent.conf exists, if not, copy the template over
 if [ ! -e /config/qBittorrent/config/qBittorrent.conf ]; then
@@ -100,13 +100,22 @@ echo "[INFO] Starting qBittorrent daemon..." | ts '%Y-%m-%d %H:%M:%.S'
 /bin/bash /etc/qbittorrent/qbittorrent.init start &
 chmod -R 755 /config/qBittorrent
 
-# Wait a second for it to start up and get the process id
-sleep 1
-qbittorrentpid=$(pgrep -o -x qbittorrent-nox) 
-echo "[INFO] qBittorrent PID: $qbittorrentpid" | ts '%Y-%m-%d %H:%M:%.S'
+# wait for the qbittorrent.init script to finish and grab the qbittorrent pid
+# from the file created by the start script
+wait $!
+qbittorrentpid=$(cat /var/run/qbittorrent.pid)
 
 # If the process exists, make sure that the log file has the proper rights and start the health check
 if [ -e /proc/$qbittorrentpid ]; then
+	echo "[INFO] qBittorrent PID: $qbittorrentpid" | ts '%Y-%m-%d %H:%M:%.S'
+	
+	# trap the TERM signal for propagation and graceful shutdowns
+	handle_term() {
+		echo "[INFO] Received SIGTERM, stopping..." | ts '%Y-%m-%d %H:%M:%.S'
+		/bin/bash /etc/qbittorrent/qbittorrent.init stop
+		exit $?
+	}
+	trap handle_term SIGTERM
 	if [[ -e /config/qBittorrent/data/logs/qbittorrent.log ]]; then
 		chmod 775 /config/qBittorrent/data/logs/qbittorrent.log
 	fi
@@ -143,10 +152,12 @@ if [ -e /proc/$qbittorrentpid ]; then
 			echo "[ERROR] Network is down, exiting this Docker" | ts '%Y-%m-%d %H:%M:%.S'
 			exit 1
 		fi
-		if [[ ! "${HEALTH_CHECK_SILENT}" == "1" || ! "${HEALTH_CHECK_SILENT}" == "true" || ! "${HEALTH_CHECK_SILENT}" == "yes" ]]; then
+		if [ "${HEALTH_CHECK_SILENT}" == "0" ] || [ "${HEALTH_CHECK_SILENT}" == "false" ] || [ "${HEALTH_CHECK_SILENT}" == "no" ]; then
 			echo "[INFO] Network is up" | ts '%Y-%m-%d %H:%M:%.S'
 		fi
-		sleep ${INTERVAL}
+		sleep ${INTERVAL} &
+		# combine sleep background with wait so that the TERM trap above works
+		wait $!
 	done
 else
 	echo "[ERROR] qBittorrent failed to start!" | ts '%Y-%m-%d %H:%M:%.S'
