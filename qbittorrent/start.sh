@@ -109,7 +109,7 @@ qbittorrentpid=$(cat /var/run/qbittorrent.pid)
 # If the process exists, make sure that the log file has the proper rights and start the health check
 if [ -e /proc/$qbittorrentpid ]; then
 	echo "[INFO] qBittorrent PID: $qbittorrentpid" | ts '%Y-%m-%d %H:%M:%.S'
-	
+
 	# trap the TERM signal for propagation and graceful shutdowns
 	handle_term() {
 		echo "[INFO] Received SIGTERM, stopping..." | ts '%Y-%m-%d %H:%M:%.S'
@@ -120,13 +120,13 @@ if [ -e /proc/$qbittorrentpid ]; then
 	if [[ -e /config/qBittorrent/data/logs/qbittorrent.log ]]; then
 		chmod 775 /config/qBittorrent/data/logs/qbittorrent.log
 	fi
-	
+
 	# Set some variables that are used
 	HOST=${HEALTH_CHECK_HOST}
 	DEFAULT_HOST="one.one.one.one"
 	INTERVAL=${HEALTH_CHECK_INTERVAL}
 	DEFAULT_INTERVAL=300
-	
+
 	# If host is zero (not set) default it to the DEFAULT_HOST variable
 	if [[ -z "${HOST}" ]]; then
 		echo "[INFO] HEALTH_CHECK_HOST is not set. For now using default host ${DEFAULT_HOST}" | ts '%Y-%m-%d %H:%M:%.S'
@@ -138,11 +138,18 @@ if [ -e /proc/$qbittorrentpid ]; then
 		echo "[INFO] HEALTH_CHECK_INTERVAL is not set. For now using default interval of ${DEFAULT_INTERVAL}" | ts '%Y-%m-%d %H:%M:%.S'
 		INTERVAL=${DEFAULT_INTERVAL}
 	fi
-	
+
 	# If HEALTH_CHECK_SILENT is zero (not set) default it to supression
 	if [[ -z "${HEALTH_CHECK_SILENT}" ]]; then
 		echo "[INFO] HEALTH_CHECK_SILENT is not set. Because this variable is not set, it will be supressed by default" | ts '%Y-%m-%d %H:%M:%.S'
 		HEALTH_CHECK_SILENT=1
+	fi
+
+	if [ ! -z ${RESTART_CONTAINER} ]; then
+		echo "[INFO] RESTART_CONTAINER defined as '${RESTART_CONTAINER}'" | ts '%Y-%m-%d %H:%M:%.S'
+	else
+		echo "[WARNING] RESTART_CONTAINER not defined,(via -e RESTART_CONTAINER), defaulting to 'yes'" | ts '%Y-%m-%d %H:%M:%.S'
+		export RESTART_CONTAINER="yes"
 	fi
 
 	while true; do
@@ -150,10 +157,14 @@ if [ -e /proc/$qbittorrentpid ]; then
 		ping -c 1 $HOST > /dev/null 2>&1
 		STATUS=$?
 		if [[ "${STATUS}" -ne 0 ]]; then
-			echo "[ERROR] Network is down, exiting this Docker" | ts '%Y-%m-%d %H:%M:%.S'
-			exit 1
+			echo "[ERROR] Network is possibly down." | ts '%Y-%m-%d %H:%M:%.S'
+			sleep 1
+			if [[ ${RESTART_CONTAINER,,} == "1" || ${RESTART_CONTAINER,,} == "true" || ${RESTART_CONTAINER,,} == "yes" ]]; then
+				echo "[INFO] Restarting container." | ts '%Y-%m-%d %H:%M:%.S'
+				exit 1
+			fi
 		fi
-		if [ "${HEALTH_CHECK_SILENT}" == "0" ] || [ "${HEALTH_CHECK_SILENT}" == "false" ] || [ "${HEALTH_CHECK_SILENT}" == "no" ]; then
+		if [[ ${HEALTH_CHECK_SILENT,,} == "0" || ${HEALTH_CHECK_SILENT,,} == "false" || ${HEALTH_CHECK_SILENT,,} == "no" ]]; then
 			echo "[INFO] Network is up" | ts '%Y-%m-%d %H:%M:%.S'
 		fi
 		sleep ${INTERVAL} &
