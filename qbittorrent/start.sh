@@ -26,7 +26,7 @@ fi
 export ENABLE_SSL=$(echo "${ENABLE_SSL,,}")
 
 if [[ ${ENABLE_SSL} == "1" || ${ENABLE_SSL} == "true" || ${ENABLE_SSL} == "yes" ]]; then
-	echo "[INFO] ENABLE_SSL is set to ${ENABLE_SSL}" | ts '%Y-%m-%d %H:%M:%.S'
+	echo "[INFO] ENABLE_SSL is set to '${ENABLE_SSL}'" | ts '%Y-%m-%d %H:%M:%.S'
 	if [[ ${HOST_OS,,} == 'unraid' ]]; then
 		echo "[SYSTEM] If you use Unraid, and get something like a 'ERR_EMPTY_RESPONSE' in your browser, add https:// to the front of the IP, and/or do this:" | ts '%Y-%m-%d %H:%M:%.S'
 		echo "[SYSTEM] Edit this Docker, change the slider in the top right to 'advanced view' and change http to https at the WebUI setting." | ts '%Y-%m-%d %H:%M:%.S'
@@ -64,8 +64,9 @@ if [[ ${ENABLE_SSL} == "1" || ${ENABLE_SSL} == "true" || ${ENABLE_SSL} == "yes" 
 		echo 'WebUI\HTTPS\Enabled=true' >> "/config/qBittorrent/config/qBittorrent.conf"
 	fi
 else
-	echo "[WARNING] ENABLE_SSL is set to ${ENABLE_SSL}, SSL is not enabled. This could cause issues with logging if other apps use the same Cookie name (SID)." | ts '%Y-%m-%d %H:%M:%.S'
-	echo "[WARNING] If you manage the SSL config yourself, you can ignore this." | ts '%Y-%m-%d %H:%M:%.S'
+	echo "[WARNING] ENABLE_SSL is set to '${ENABLE_SSL}', SSL is not enabled. This could cause issues with logging if other apps use the same Cookie name (SID)." | ts '%Y-%m-%d %H:%M:%.S'
+	echo "[WARNING] Removing the SSL configuration from the config file..." | ts '%Y-%m-%d %H:%M:%.S'
+	sed -i '/^WebUI\\HTTPS*/d' "/config/qBittorrent/config/qBittorrent.conf"
 fi
 
 # Check if the PGID exists, if not create the group with the name 'qbittorrent'
