@@ -133,15 +133,21 @@ RUN apt update \
     jq \
     libssl-dev \
     pkg-config \
-    qtbase5-dev \
-    qttools5-dev \
     zlib1g-dev \
+	&& echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list \
+    && printf 'Package: *\nPin: release a=unstable\nPin-Priority: 150\n' > /etc/apt/preferences.d/limit-unstable \
+    && apt update \
+    && apt install -y --no-install-recommends -t unstable \
+    qt6-base-dev \
+    qt6-tools-dev \
+    qt6-l10n-tools \
+    qt6-tools-dev-tools \
     && QBITTORRENT_RELEASE=$(curl -sX GET "https://api.github.com/repos/qBittorrent/qBittorrent/tags" | jq '.[] | select(.name | index ("beta") | not) | select(.name | index ("rc") | not) | .name' | head -n 1 | tr -d '"') \
     && curl -o /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz -L "https://github.com/qbittorrent/qBittorrent/archive/${QBITTORRENT_RELEASE}.tar.gz" \
     && tar -xzf /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz \
     && rm /opt/qBittorrent-${QBITTORRENT_RELEASE}.tar.gz \
     && cd /opt/qBittorrent-${QBITTORRENT_RELEASE} \
-    && cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DGUI=OFF -DCMAKE_CXX_STANDARD=17 \
+    && cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DGUI=OFF -DCMAKE_CXX_STANDARD=17 -DQT6=ON \
     && cmake --build build --parallel $(nproc) \
     && cmake --install build \
     && cd /opt \
@@ -154,8 +160,10 @@ RUN apt update \
     jq \
     libssl-dev \
     pkg-config \
-    qtbase5-dev \
-    qttools5-dev \
+    qt6-base-dev \
+    qt6-tools-dev \
+    qt6-l10n-tools \
+    qt6-tools-dev-tools \
     zlib1g-dev \
     && apt-get clean \
     && apt --purge autoremove -y \
@@ -165,9 +173,7 @@ RUN apt update \
     /var/tmp/*
 
 # Install WireGuard and some other dependencies some of the scripts in the container rely on.
-RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable-wireguard.list \
-    && printf 'Package: *\nPin: release a=unstable\nPin-Priority: 150\n' > /etc/apt/preferences.d/limit-unstable \
-    && apt update \
+RUN apt update \
     && apt install -y --no-install-recommends \
     ca-certificates \
     dos2unix \
@@ -175,9 +181,9 @@ RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.li
     ipcalc \
     iptables \
     kmod \
-    libqt5network5 \
-    libqt5xml5 \
-    libqt5sql5 \
+    libqt6network6 \
+    libqt6xml6 \
+    libqt6sql6 \
     libssl1.1 \
     moreutils \
     net-tools \
