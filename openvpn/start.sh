@@ -256,7 +256,7 @@ if [[ -z "${PGID}" ]]; then
 	export PGID="root"
 fi
 
-if [[ $VPN_ENABLED == "yes" ]]; then
+if [[ $VPN_ENABLED == "1" || $VPN_ENABLED == "true" || $VPN_ENABLED == "yes" ]]; then
 	if [[ "${VPN_TYPE}" == "openvpn" ]]; then
 		echo "[INFO] Starting OpenVPN..." | ts '%Y-%m-%d %H:%M:%.S'
 		cd /config/openvpn
