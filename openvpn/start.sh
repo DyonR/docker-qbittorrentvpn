@@ -274,5 +274,10 @@ if [[ $VPN_ENABLED == "1" || $VPN_ENABLED == "true" || $VPN_ENABLED == "yes" ]];
 	fi
 	exec /bin/bash /etc/qbittorrent/iptables.sh
 else
+	echo "[WARNIG] @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" | ts '%Y-%m-%d %H:%M:%.S'
+	echo "[WARNIG] THE CONTAINER IS RUNNING WITH VPN DISABLED" | ts '%Y-%m-%d %H:%M:%.S'
+	echo "[WARNIG] PLEASE MAKE SURE VPN_ENABLED IS SET TO 'yes'" | ts '%Y-%m-%d %H:%M:%.S'
+	echo "[WARNIG] IF THIS IS INTENTIONAL, YOU CAN IGNORE THIS" | ts '%Y-%m-%d %H:%M:%.S'
+	echo "[WARNIG] @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" | ts '%Y-%m-%d %H:%M:%.S'
 	exec /bin/bash /etc/qbittorrent/start.sh
 fi
