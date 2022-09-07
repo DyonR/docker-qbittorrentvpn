@@ -126,6 +126,7 @@ if [ -e /proc/$qbittorrentpid ]; then
 	DEFAULT_HOST="one.one.one.one"
 	INTERVAL=${HEALTH_CHECK_INTERVAL}
 	DEFAULT_INTERVAL=300
+	DEFAULT_HEALTH_CHECK_AMOUNT=1
 
 	# If host is zero (not set) default it to the DEFAULT_HOST variable
 	if [[ -z "${HOST}" ]]; then
@@ -152,9 +153,15 @@ if [ -e /proc/$qbittorrentpid ]; then
 		export RESTART_CONTAINER="yes"
 	fi
 
+	# If HEALTH_CHECK_AMOUNT is zero (not set) default it to DEFAULT_HEALTH_CHECK_AMOUNT
+	if [[ -z ${HEALTH_CHECK_AMOUNT} ]]; then
+		echo "[INFO] HEALTH_CHECK_AMOUNT is not set. For now using default interval of ${DEFAULT_HEALTH_CHECK_AMOUNT}" | ts '%Y-%m-%d %H:%M:%.S'
+		HEALTH_CHECK_AMOUNT=${DEFAULT_HEALTH_CHECK_AMOUNT}
+	fi
+
 	while true; do
 		# Ping uses both exit codes 1 and 2. Exit code 2 cannot be used for docker health checks, therefore we use this script to catch error code 2
-		ping -c 1 $HOST > /dev/null 2>&1
+		ping -c ${HEALTH_CHECK_AMOUNT} $HOST > /dev/null 2>&1
 		STATUS=$?
 		if [[ "${STATUS}" -ne 0 ]]; then
 			echo "[ERROR] Network is possibly down." | ts '%Y-%m-%d %H:%M:%.S'
