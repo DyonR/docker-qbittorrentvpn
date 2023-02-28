@@ -161,6 +161,13 @@ if [ -e /proc/$qbittorrentpid ]; then
 	echo "[INFO] HEALTH_CHECK_AMOUNT is set to ${HEALTH_CHECK_AMOUNT}" | ts '%Y-%m-%d %H:%M:%.S'
 
 	while true; do
+		# Confirm the process is still running, start it back up if it's not.
+		if ! ps -p $qbittorrentpid > /dev/null; then
+			echo "[ERROR] qBittorrent daemon is not running. Restarting..." | ts '%Y-%m-%d %H:%M:%.S'
+			/bin/bash /etc/qbittorrent/qbittorrent.init start
+			wait $!
+			qbittorrentpid=$(cat /var/run/qbittorrent.pid)
+		fi
 		# Ping uses both exit codes 1 and 2. Exit code 2 cannot be used for docker health checks, therefore we use this script to catch error code 2
 		ping -c ${HEALTH_CHECK_AMOUNT} $HOST > /dev/null 2>&1
 		STATUS=$?
