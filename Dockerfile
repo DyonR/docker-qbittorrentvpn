@@ -149,7 +149,6 @@ RUN apt update \
     && apt purge -y \
     build-essential \
     ca-certificates \
-    curl \
     git \
     jq \
     libssl-dev \
