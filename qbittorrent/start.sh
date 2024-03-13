@@ -196,6 +196,7 @@ if [ -e /proc/$qbittorrentpid ]; then
 				portData="json={\"listen_port\":$currentPort}"
 				curl -i --silent --data $portData $WEBUI_URL/api/v2/app/setPreferences --cookie $cookie > /dev/null 2>&1
 			fi
+			curl --silent -X 'POST' "$WEBUI_URL/api/v2/auth/logout" -H 'accept: */*' -d '' --cookie $cookie > /dev/null 2>&1
 		fi
 		
 		sleep ${INTERVAL} &
