@@ -185,6 +185,19 @@ if [ -e /proc/$qbittorrentpid ]; then
 		if [[ ${HEALTH_CHECK_SILENT,,} == "0" || ${HEALTH_CHECK_SILENT,,} == "false" || ${HEALTH_CHECK_SILENT,,} == "no" ]]; then
 			echo "[INFO] Network is up" | ts '%Y-%m-%d %H:%M:%.S'
 		fi
+		
+		# Check the NAT port forward and update qBittorrent config if there is a change.
+		if [[ $ENABLEPROTONVPNPORTFWD -eq 1  ]] ; then
+			loginData="username=$WEBUI_USER&password=$WEBUI_PASS"
+			cookie=$(curl -i --silent --header "Referer: $WEBUI_URL" --data $loginData $WEBUI_URL/api/v2/auth/login | grep "set-cookie" | awk '/set-cookie:/ {print $2}' | sed 's/;//')
+			setPort=$(curl --silent $WEBUI_URL/api/v2/app/preferences --cookie $cookie | jq '.listen_port')
+			currentPort=$(natpmpc -a 1 0 udp 60 -g 10.2.0.1 | grep "public port" | awk '/Mapped public port/ {print $4}')
+			if [[ $setPort -ne $currentPort ]] ; then		
+				portData="json={\"listen_port\":$currentPort}"
+				curl -i --silent --data $portData $WEBUI_URL/api/v2/app/setPreferences --cookie $cookie > /dev/null 2>&1
+			fi
+		fi
+		
 		sleep ${INTERVAL} &
 		# combine sleep background with wait so that the TERM trap above works
 		wait $!

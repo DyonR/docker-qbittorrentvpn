@@ -149,6 +149,7 @@ RUN apt update \
     && apt purge -y \
     build-essential \
     ca-certificates \
+	curl \
     git \
     jq \
     libssl-dev \
@@ -163,16 +164,39 @@ RUN apt update \
     /tmp/* \
     /var/tmp/*
 
+# Download and extract VueTorrent
+RUN apt update \
+    && apt upgrade -y \
+    && apt install -y --no-install-recommends \
+	ca-certificates \
+	curl \
+	unzip \
+    && VUETORRENT_RELEASE=v2.7.1 \
+    && curl -o /config/vuetorrent.zip -L "https://github.com/VueTorrent/VueTorrent/releases/download/${VUETORRENT_RELEASE}/vuetorrent.zip" \
+    && cd /config \
+	&& unzip vuetorrent.zip \
+	&& apt purge -y \
+    ca-certificates \
+	curl \
+    && apt-get clean \
+    && apt --purge autoremove -y \
+    && rm -rf \
+    /var/lib/apt/lists/* \
+    /tmp/* \
+    /var/tmp/*
+
 # Install WireGuard and some other dependencies some of the scripts in the container rely on.
 RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable-wireguard.list \
     && printf 'Package: *\nPin: release a=unstable\nPin-Priority: 150\n' > /etc/apt/preferences.d/limit-unstable \
     && apt update \
     && apt install -y --no-install-recommends \
     ca-certificates \
+	curl \
     dos2unix \
     inetutils-ping \
     ipcalc \
     iptables \
+	jq \
     kmod \
     libqt5network5 \
     libqt5xml5 \
@@ -180,6 +204,7 @@ RUN echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.li
     libssl1.1 \
     moreutils \
     net-tools \
+	natpmpc \
     openresolv \
     openvpn \
     procps \
@@ -199,7 +224,6 @@ RUN echo "deb http://deb.debian.org/debian/ bullseye non-free" > /etc/apt/source
     && apt -y install --no-install-recommends \
     unrar \
     p7zip-full \
-    unzip \
     zip \
     && apt-get clean \
     && apt --purge autoremove -y \

@@ -18,6 +18,9 @@ Docker container which runs the latest [qBittorrent](https://github.com/qbittorr
 * Configurable UID and GID for config files and /downloads for qBittorrent
 * Created with [Unraid](https://unraid.net/) in mind
 * BitTorrent port 8999 exposed by default
+* Automatically restarts the qBittorrent process in the event of it crashing.
+* Adds VueTorrent (alternate web UI) which can be enabled (or not) by the user.
+* Works with Proton VPN's port forward VPN servers to automatically enable forwarding in your container, and automatically sets the connection port in qBittorrent to match the forwarded port.
 
 ## Run container from Docker registry
 The container is available from the Docker registry and this is the simplest way to get it  
@@ -34,7 +37,7 @@ $ docker run  -d \
               --cap-add NET_ADMIN \
               --sysctl "net.ipv4.conf.all.src_valid_mark=1" \
               --restart unless-stopped \
-              dyonr/qbittorrentvpn
+              tenseiken/qbittorrentvpn:latest
 ```
 
 ## Docker Tags
@@ -69,6 +72,10 @@ $ docker run  -d \
 |`RESTART_CONTAINER`| No |Set to `no` to **disable** the automatic restart when the network is possibly down.|`RESTART_CONTAINER=yes`|`yes`|
 |`INSTALL_PYTHON3`| No |Set this to `yes` to let the container install Python3.|`INSTALL_PYTHON3=yes`|`no`|
 |`ADDITIONAL_PORTS`| No |Adding a comma delimited list of ports will allow these ports via the iptables script.|`ADDITIONAL_PORTS=1234,8112`||
+|`ENABLEPROTONVPNPORTFWD` | No | Enables Proton VPN port forwarding logic. 1 to enable, 0 to disable. | `ENABLEPROTONVPNPORTFWD=1` | 0 |
+|`WEBUI_URL` | Only if port fwd enabled | Allows the script to use the WebUI API to set the forwarded port automatically. | `WEBUI_URL=https://webui.domain.com` / `WEBUI_URL=http://192.168.1.17` ||
+|`WEBUI_USER` | Only if port fwd enabled | Allows the script to use the WebUI API to set the forwarded port automatically. | `WEBUI_USER=admin` ||
+|`WEBUI_PASS` | Only if port fwd enabled | Allows the script to use the WebUI API to set the forwarded port automatically. | `WEBUI_PASS=adminadmin` ||
 
 ## Volumes
 | Volume | Required | Function | Example |
