@@ -111,6 +111,17 @@ If you do not do this, the container will keep on stopping with the error `RTNET
 Since I do not have IPv6, I am did not test.
 Thanks to [mchangrh](https://github.com/mchangrh) / [Issue #49](https://github.com/DyonR/docker-qbittorrentvpn/issues/49)  
 
+## Proton VPN Port Forwarding with Wireguard
+If you use Proton VPN as your VPN provider, they offer a feature called port forwarding that will improve your connectability from peers in the swarm. This works by running a script on a loop in the background that periodically refreshes your port forward. That's necessary because they have to be set with an expiration time, even though we don't want it to expire while our client is running. We don't get to choose the port that's going to be forwarded (that is handled by Proton VPN), and it can change periodically, so we need to be able to change the listen port in qBittorrent in the event of a change. In order to update the listen port in qBittorrent, an authenticated API call to your local qBittorrent instance is required. If you want to have this functionality enabled, you can do the following:
+
+- Use your Proton VPN account to acquire a Wireguard config file for one of their port-forwarding-enabled servers. These are paid servers--the free ones do not support it. Save this config file as wg0.conf in the Wireguard config directory just like you would any other Wireguard config file.
+- Set the `ENABLEPROTONVPNPORTFWD` environment variable in your container to 1.
+- Set the `WEBUI_URL` environment variable in your container to the URL you use to access your qBittorrent web UI. This can be the local IP (ex: http://192.168.1.17) or a public URL if you have one (ex: https://qbittorrent.mydomain.com). As long as the container can reach this URL over its network, it's fine.
+- Set the `WEBUI_USER` environment variable in your container to the username you use to authenticate with your qBittorrent web UI.
+- Set the `WEBUI_PASS` environment variable in your container to the password you use to authenticate with your qBittorrent web UI.
+
+With all of that set up, port forwarding will be automatically established for you, and the listen port in qBittorrent will be set automatically.
+
 # How to use OpenVPN
 The container will fail to boot if `VPN_ENABLED` is set and there is no valid .ovpn file present in the /config/openvpn directory. Drop a .ovpn file from your VPN provider into /config/openvpn (if necessary with additional files like certificates) and start the container again. You may need to edit the ovpn configuration file to load your VPN credentials from a file by setting `auth-user-pass`.
 
