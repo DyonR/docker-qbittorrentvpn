@@ -197,4 +197,8 @@ echo "--------------------"
 iptables -S
 echo "--------------------"
 
+# start the NAT-PMP port forward loop
+if [[ $ENABLEPROTONVPNPORTFWD -eq 1  ]] ; then
+	nohup /etc/qbittorrent/portfwd.sh > /dev/null 2>&1 &
+fi
 exec /bin/bash /etc/qbittorrent/start.sh

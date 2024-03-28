@@ -6,8 +6,9 @@ fi
 # Set the correct rights accordingly to the PUID and PGID on /config/qBittorrent
 chown -R ${PUID}:${PGID} /config/qBittorrent
 
+##Disabling this because the downloads folder is my whole NAS and file ownerships are already managed by ACL.
 # Set the rights on the /downloads folder
-find /downloads -not -user ${PUID} -execdir chown ${PUID}:${PGID} {} \+
+#find /downloads -not -user ${PUID} -execdir chown ${PUID}:${PGID} {} \+
 
 # Check if qBittorrent.conf exists, if not, copy the template over
 if [ ! -e /config/qBittorrent/config/qBittorrent.conf ]; then
@@ -63,10 +64,12 @@ if [[ ${ENABLE_SSL} == "1" || ${ENABLE_SSL} == "true" || ${ENABLE_SSL} == "yes" 
 		echo "[WARNING] /config/qBittorrent/config/qBittorrent.conf doesn't have the WebUI\HTTPS\Enabled loaded. Added it to the config." | ts '%Y-%m-%d %H:%M:%.S'
 		echo 'WebUI\HTTPS\Enabled=true' >> "/config/qBittorrent/config/qBittorrent.conf"
 	fi
-else
+elif [[ ${ENABLE_SSL} == "0" || ${ENABLE_SSL} == "false" || ${ENABLE_SSL} == "no" ]]; then
 	echo "[WARNING] ENABLE_SSL is set to '${ENABLE_SSL}', SSL is not enabled. This could cause issues with logging if other apps use the same Cookie name (SID)." | ts '%Y-%m-%d %H:%M:%.S'
 	echo "[WARNING] Removing the SSL configuration from the config file..." | ts '%Y-%m-%d %H:%M:%.S'
 	sed -i '/^WebUI\\HTTPS*/d' "/config/qBittorrent/config/qBittorrent.conf"
+else
+	echo "[WARNING] ENABLE_SSL is set to '${ENABLE_SSL}', SSL config ignored. No changes made." | ts '%Y-%m-%d %H:%M:%.S'
 fi
 
 # Check if the PGID exists, if not create the group with the name 'qbittorrent'
@@ -161,6 +164,13 @@ if [ -e /proc/$qbittorrentpid ]; then
 	echo "[INFO] HEALTH_CHECK_AMOUNT is set to ${HEALTH_CHECK_AMOUNT}" | ts '%Y-%m-%d %H:%M:%.S'
 
 	while true; do
+		# Confirm the process is still running, start it back up if it's not.
+		if ! ps -p $qbittorrentpid > /dev/null; then
+			echo "[ERROR] qBittorrent daemon is not running. Restarting..." | ts '%Y-%m-%d %H:%M:%.S'
+			/bin/bash /etc/qbittorrent/qbittorrent.init start
+			wait $!
+			qbittorrentpid=$(cat /var/run/qbittorrent.pid)
+		fi
 		# Ping uses both exit codes 1 and 2. Exit code 2 cannot be used for docker health checks, therefore we use this script to catch error code 2
 		ping -c ${HEALTH_CHECK_AMOUNT} $HOST > /dev/null 2>&1
 		STATUS=$?
@@ -175,6 +185,25 @@ if [ -e /proc/$qbittorrentpid ]; then
 		if [[ ${HEALTH_CHECK_SILENT,,} == "0" || ${HEALTH_CHECK_SILENT,,} == "false" || ${HEALTH_CHECK_SILENT,,} == "no" ]]; then
 			echo "[INFO] Network is up" | ts '%Y-%m-%d %H:%M:%.S'
 		fi
+		
+		# Check the NAT port forward and update qBittorrent config if there is a change.
+		if [[ $ENABLEPROTONVPNPORTFWD -eq 1  ]] ; then
+			loginData="username=$WEBUI_USER&password=$WEBUI_PASS"
+			cookie=$(curl -i --silent --header "Referer: $WEBUI_URL" --data $loginData $WEBUI_URL/api/v2/auth/login | grep "set-cookie" | awk '/set-cookie:/ {print $2}' | sed 's/;//') > /dev/null 2>&1
+			if [[ $cookie ]]; then
+				setPort=$(curl --silent $WEBUI_URL/api/v2/app/preferences --cookie $cookie | jq '.listen_port') > /dev/null 2>&1
+				currentPort=$(natpmpc -a 1 0 udp 60 -g 10.2.0.1 | grep "public port" | awk '/Mapped public port/ {print $4}')
+				if [[ $setPort -ne $currentPort ]] ; then		
+					portData="json={\"listen_port\":$currentPort}"
+					curl -i --silent --data $portData $WEBUI_URL/api/v2/app/setPreferences --cookie $cookie > /dev/null 2>&1
+				fi
+				curl --silent -X 'POST' "$WEBUI_URL/api/v2/auth/logout" -H 'accept: */*' -d '' --cookie $cookie > /dev/null 2>&1
+			else
+				echo "[WARNING] Unable to log into the web UI." | ts '%Y-%m-%d %H:%M:%.S'
+			fi
+			unset cookie
+		fi
+		
 		sleep ${INTERVAL} &
 		# combine sleep background with wait so that the TERM trap above works
 		wait $!

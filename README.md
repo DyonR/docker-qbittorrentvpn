@@ -18,6 +18,9 @@ Docker container which runs the latest [qBittorrent](https://github.com/qbittorr
 * Configurable UID and GID for config files and /downloads for qBittorrent
 * Created with [Unraid](https://unraid.net/) in mind
 * BitTorrent port 8999 exposed by default
+* Automatically restarts the qBittorrent process in the event of it crashing.
+* Adds VueTorrent (alternate web UI) which can be enabled (or not) by the user.
+* Works with Proton VPN's port forward VPN servers to automatically enable forwarding in your container, and automatically sets the connection port in qBittorrent to match the forwarded port.
 
 ## Run container from Docker registry
 The container is available from the Docker registry and this is the simplest way to get it  
@@ -34,7 +37,7 @@ $ docker run  -d \
               --cap-add NET_ADMIN \
               --sysctl "net.ipv4.conf.all.src_valid_mark=1" \
               --restart unless-stopped \
-              dyonr/qbittorrentvpn
+              tenseiken/qbittorrentvpn:latest
 ```
 
 ## Docker Tags
@@ -57,7 +60,7 @@ $ docker run  -d \
 |`VPN_PASSWORD`| No | If username and password provided, configures ovpn file automatically |`VPN_PASSWORD=ac98df79ed7fb`||
 |`LAN_NETWORK`| Yes (atleast one) | Comma delimited local Network's with CIDR notation |`LAN_NETWORK=192.168.0.0/24,10.10.0.0/24`||
 |`LEGACY_IPTABLES`| No | Use `iptables (legacy)` instead of `iptables (nf_tables)` |`LEGACY_IPTABLES=yes`||
-|`ENABLE_SSL`| No | Let the container handle SSL (yes/no)? |`ENABLE_SSL=yes`|`yes`|
+|`ENABLE_SSL`| No | Let the container handle SSL (yes/no/ignore)? |`ENABLE_SSL=yes`|`ignore`|
 |`NAME_SERVERS`| No | Comma delimited name servers |`NAME_SERVERS=1.1.1.1,1.0.0.1`|`1.1.1.1,1.0.0.1`|
 |`PUID`| No | UID applied to /config files and /downloads |`PUID=99`|`99`|
 |`PGID`| No | GID applied to /config files and /downloads  |`PGID=100`|`100`|
@@ -69,6 +72,10 @@ $ docker run  -d \
 |`RESTART_CONTAINER`| No |Set to `no` to **disable** the automatic restart when the network is possibly down.|`RESTART_CONTAINER=yes`|`yes`|
 |`INSTALL_PYTHON3`| No |Set this to `yes` to let the container install Python3.|`INSTALL_PYTHON3=yes`|`no`|
 |`ADDITIONAL_PORTS`| No |Adding a comma delimited list of ports will allow these ports via the iptables script.|`ADDITIONAL_PORTS=1234,8112`||
+|`ENABLEPROTONVPNPORTFWD` | No | Enables Proton VPN port forwarding logic. 1 to enable, 0 to disable. | `ENABLEPROTONVPNPORTFWD=1` | 0 |
+|`WEBUI_URL` | Only if port fwd enabled | Allows the script to use the WebUI API to set the forwarded port automatically. | `WEBUI_URL=https://webui.domain.com` / `WEBUI_URL=http://192.168.1.17` ||
+|`WEBUI_USER` | Only if port fwd enabled | Allows the script to use the WebUI API to set the forwarded port automatically. | `WEBUI_USER=admin` ||
+|`WEBUI_PASS` | Only if port fwd enabled | Allows the script to use the WebUI API to set the forwarded port automatically. | `WEBUI_PASS=adminadmin` ||
 
 ## Volumes
 | Volume | Required | Function | Example |
@@ -103,6 +110,17 @@ The full Unraid `Extra Parameters` would be: `--restart unless-stopped --sysctl 
 If you do not do this, the container will keep on stopping with the error `RTNETLINK answers permission denied`.
 Since I do not have IPv6, I am did not test.
 Thanks to [mchangrh](https://github.com/mchangrh) / [Issue #49](https://github.com/DyonR/docker-qbittorrentvpn/issues/49)  
+
+## Proton VPN Port Forwarding with Wireguard
+If you use Proton VPN as your VPN provider, they offer a feature called port forwarding that will improve your connectability from peers in the swarm. This works by running a script on a loop in the background that periodically refreshes your port forward. That's necessary because they have to be set with an expiration time, even though we don't want it to expire while our client is running. We don't get to choose the port that's going to be forwarded (that is handled by Proton VPN), and it can change periodically, so we need to be able to change the listen port in qBittorrent in the event of a change. In order to update the listen port in qBittorrent, an authenticated API call to your local qBittorrent instance is required. If you want to have this functionality enabled, you can do the following:
+
+- Use your Proton VPN account to acquire a Wireguard config file for one of their port-forwarding-enabled servers. These are paid servers--the free ones do not support it. Save this config file as wg0.conf in the Wireguard config directory just like you would any other Wireguard config file.
+- Set the `ENABLEPROTONVPNPORTFWD` environment variable in your container to 1.
+- Set the `WEBUI_URL` environment variable in your container to the URL you use to access your qBittorrent web UI. This can be the local IP (ex: http://192.168.1.17) or a public URL if you have one (ex: https://qbittorrent.mydomain.com). As long as the container can reach this URL over its network, it's fine.
+- Set the `WEBUI_USER` environment variable in your container to the username you use to authenticate with your qBittorrent web UI.
+- Set the `WEBUI_PASS` environment variable in your container to the password you use to authenticate with your qBittorrent web UI.
+
+With all of that set up, port forwarding will be automatically established for you, and the listen port in qBittorrent will be set automatically.
 
 # How to use OpenVPN
 The container will fail to boot if `VPN_ENABLED` is set and there is no valid .ovpn file present in the /config/openvpn directory. Drop a .ovpn file from your VPN provider into /config/openvpn (if necessary with additional files like certificates) and start the container again. You may need to edit the ovpn configuration file to load your VPN credentials from a file by setting `auth-user-pass`.
